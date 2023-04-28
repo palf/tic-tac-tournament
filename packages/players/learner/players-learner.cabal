@@ -1,0 +1,74 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           players-learner
+version:        0.0.0.0
+description:    Please see the README
+build-type:     Simple
+
+library
+  exposed-modules:
+      Players.Learner
+      Players.Learner.Weights
+  other-modules:
+      Paths_players_learner
+  hs-source-dirs:
+      lib
+  ghc-options: -Wall
+  build-depends:
+      MonadRandom
+    , aeson
+    , aeson-pretty
+    , array
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , deepseq
+    , directory
+    , game
+    , mtl
+    , random
+    , random-shuffle
+    , safe
+    , scientific
+    , split
+    , stm
+    , text
+    , time
+    , transformers
+    , unordered-containers
+    , uuid
+  default-language: Haskell2010
+
+test-suite learner
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Paths_players_learner
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , game
+    , mtl
+    , players-learner
+    , random
+    , scientific
+    , stm
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
+    , text
+    , time
+    , transformers
+    , unordered-containers
+    , uuid
+  default-language: Haskell2010

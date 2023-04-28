@@ -1,0 +1,105 @@
+name:                versus
+version:             0.0.0.0
+description:         Please see the README
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && < 5
+  - aeson
+  - bytestring
+  - containers
+  - stm
+  - random
+  - mtl
+  - game
+  - random
+  - deepseq
+  - text
+  - time
+  - transformers
+  - optparse-applicative
+  - unordered-containers
+  - uuid
+  - MonadRandom
+  - random-shuffle
+  - scientific
+
+executables:
+  random-random:
+    main: Main.hs
+    source-dirs: bin/random-random
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-random
+      - players-learner
+      - players-minimax
+      - players-perfect
+
+  minimax-random:
+    main: Main.hs
+    source-dirs: bin/minimax-random
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-random
+      - players-minimax
+
+  random-minimax:
+    main: Main.hs
+    source-dirs: bin/random-minimax
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-random
+      - players-minimax
+
+  random-learner:
+    main: Main.hs
+    source-dirs: bin/random-learner
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-random
+      - players-learner
+
+  random-perfect:
+    main: Main.hs
+    source-dirs: bin/random-perfect
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-random
+      - players-perfect
+
+  learner-perfect:
+    main: Main.hs
+    source-dirs: bin/learner-perfect
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-learner
+      - players-perfect
+
+  learner-learner:
+    main: Main.hs
+    source-dirs: bin/learner-learner
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - players-learner

@@ -1,0 +1,58 @@
+name:                game
+version:             0.0.0.0
+description:         Please see the README
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && < 5
+
+library:
+  source-dirs: lib
+  dependencies:
+    - aeson
+    - bytestring
+    - containers
+    - stm
+    - random-shuffle
+    - mtl
+    - transformers
+    - split
+    - directory
+    - MonadRandom
+    - array
+    - random
+    - tasty
+    - tasty-hunit
+    - tasty-quickcheck
+    - text
+    - time
+    - unordered-containers
+    - uuid
+    - scientific
+    - QuickCheck
+    - deepseq
+    - random
+
+tests:
+  game:
+    main: Main.hs
+    source-dirs: test
+    dependencies:
+      - QuickCheck
+      - aeson
+      - bytestring
+      - containers
+      - mtl
+      - random
+      - scientific
+      - stm
+      - tasty
+      - tasty-hunit
+      - tasty-quickcheck
+      - text
+      - time
+      - unordered-containers
+      - uuid
+      - game
+      - transformers

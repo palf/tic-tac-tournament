@@ -1,0 +1,78 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           game
+version:        0.0.0.0
+description:    Please see the README
+build-type:     Simple
+
+library
+  exposed-modules:
+      Board
+      Play
+  other-modules:
+      Paths_game
+  hs-source-dirs:
+      lib
+  ghc-options: -Wall
+  build-depends:
+      MonadRandom
+    , QuickCheck
+    , aeson
+    , array
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , deepseq
+    , directory
+    , mtl
+    , random
+    , random-shuffle
+    , scientific
+    , split
+    , stm
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
+    , text
+    , time
+    , transformers
+    , unordered-containers
+    , uuid
+  default-language: Haskell2010
+
+test-suite game
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Tests.Board
+      Tests.FindWinner
+      Tests.MakeMove
+      Utils
+      Paths_game
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , game
+    , mtl
+    , random
+    , scientific
+    , stm
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
+    , text
+    , time
+    , transformers
+    , unordered-containers
+    , uuid
+  default-language: Haskell2010

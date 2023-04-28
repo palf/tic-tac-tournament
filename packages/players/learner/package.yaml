@@ -1,0 +1,58 @@
+name:                players-learner
+version:             0.0.0.0
+description:         Please see the README
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && < 5
+
+library:
+  source-dirs: lib
+  dependencies:
+    - MonadRandom
+    - aeson
+    - array
+    - game
+    - bytestring
+    - containers
+    - deepseq
+    - safe
+    - directory
+    - mtl
+    - aeson-pretty
+    - random
+    - random-shuffle
+    - scientific
+    - split
+    - stm
+    - text
+    - time
+    - transformers
+    - unordered-containers
+    - uuid
+
+tests:
+  learner:
+    main: Main.hs
+    source-dirs: test
+    dependencies:
+      - QuickCheck
+      - aeson
+      - bytestring
+      - containers
+      - mtl
+      - random
+      - scientific
+      - stm
+      - game
+      - players-learner
+      - tasty
+      - tasty-hunit
+      - tasty-quickcheck
+      - text
+      - time
+      - unordered-containers
+      - uuid
+      - game
+      - transformers

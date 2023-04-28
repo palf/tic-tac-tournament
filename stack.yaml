@@ -1,0 +1,12 @@
+resolver:
+  url: https://raw.githubusercontent.com/commercialhaskell/stackage-snapshots/master/lts/20/13.yaml
+
+packages:
+  - packages/game
+
+  - packages/players/random
+  - packages/players/learner
+  - packages/players/minimax
+  - packages/players/perfect
+
+  - packages/versus

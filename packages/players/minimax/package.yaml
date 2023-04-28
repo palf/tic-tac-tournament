@@ -1,0 +1,55 @@
+name:                players-minimax
+version:             0.0.0.0
+description:         Please see the README
+
+ghc-options: -Wall
+
+dependencies:
+  - base >= 4.7 && < 5
+
+library:
+  source-dirs: lib
+  dependencies:
+    - MonadRandom
+    - aeson
+    - array
+    - game
+    - bytestring
+    - containers
+    - deepseq
+    - directory
+    - mtl
+    - random
+    - random-shuffle
+    - scientific
+    - split
+    - stm
+    - text
+    - time
+    - transformers
+    - unordered-containers
+    - uuid
+
+tests:
+  minimax:
+    main: Main.hs
+    source-dirs: test
+    dependencies:
+      - QuickCheck
+      - aeson
+      - bytestring
+      - players-minimax
+      - containers
+      - mtl
+      - random
+      - scientific
+      - stm
+      - tasty
+      - tasty-hunit
+      - tasty-quickcheck
+      - text
+      - time
+      - unordered-containers
+      - uuid
+      - game
+      - transformers

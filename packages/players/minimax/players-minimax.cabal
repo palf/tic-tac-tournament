@@ -1,0 +1,72 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.1.
+--
+-- see: https://github.com/sol/hpack
+
+name:           players-minimax
+version:        0.0.0.0
+description:    Please see the README
+build-type:     Simple
+
+library
+  exposed-modules:
+      Players.Minimax
+  other-modules:
+      Paths_players_minimax
+  hs-source-dirs:
+      lib
+  ghc-options: -Wall
+  build-depends:
+      MonadRandom
+    , aeson
+    , array
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , deepseq
+    , directory
+    , game
+    , mtl
+    , random
+    , random-shuffle
+    , scientific
+    , split
+    , stm
+    , text
+    , time
+    , transformers
+    , unordered-containers
+    , uuid
+  default-language: Haskell2010
+
+test-suite minimax
+  type: exitcode-stdio-1.0
+  main-is: Main.hs
+  other-modules:
+      Tests.Players.Minimax
+      Paths_players_minimax
+  hs-source-dirs:
+      test
+  ghc-options: -Wall
+  build-depends:
+      QuickCheck
+    , aeson
+    , base >=4.7 && <5
+    , bytestring
+    , containers
+    , game
+    , mtl
+    , players-minimax
+    , random
+    , scientific
+    , stm
+    , tasty
+    , tasty-hunit
+    , tasty-quickcheck
+    , text
+    , time
+    , transformers
+    , unordered-containers
+    , uuid
+  default-language: Haskell2010
