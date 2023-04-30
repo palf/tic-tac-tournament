@@ -3,11 +3,13 @@
 
 module Board where
 
-import qualified Data.Array     as Array
-import qualified Data.List      as List
+import qualified Data.Array         as Array
+import qualified Data.List          as List
+import qualified Data.List.NonEmpty as NonEmpty
 
-import           Data.Array     (Array, (!), (//))
+import           Data.Array         (Array, (!), (//))
 import           Data.Bifunctor
+import           Data.List.NonEmpty (NonEmpty (..))
 import           GHC.Generics
 
 
@@ -379,11 +381,11 @@ revertTransform FlipRot3 b = rotateBoard $ flipBoard b
 
 
 bestRotation :: Board -> (String, Transform)
-bestRotation board = head $ List.sortOn fst $ List.sortOn snd (first boardToString <$> permutations board)
+bestRotation board = head $ List.sortOn fst $ List.sortOn snd (permutations board)
   where
-    permutations :: Board -> [(Board, Transform)]
-    permutations b = fmap (\x -> (applyTransform x b, x))
-      [ None , Rot1 , Rot2 , Rot3 , Flip , FlipRot1 , FlipRot2 , FlipRot3 ]
+    permutations :: Board -> [] ( String, Transform )
+    permutations b = (\x -> (boardToString (applyTransform x b), x)) <$>
+      [ None, Rot1 , Rot2 , Rot3 , Flip , FlipRot1 , FlipRot2 , FlipRot3 ]
 
 
 bestBoardKey :: Board -> (String, Transform)

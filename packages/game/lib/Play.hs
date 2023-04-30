@@ -42,7 +42,8 @@ play players = runWriterT $ play1 players
 
 
 play1 :: forall m. (MonadWriter GameHistory m) => Players m -> m GameResult
-play1 players = play' X $ createBoard [X, Empty, Empty, Empty, O, O, Empty, Empty, X]
+-- play1 players = play' X $ createBoard [X, Empty, Empty, Empty, O, O, Empty, Empty, X]
+play1 players = play' X initialBoard
 
   where
     play' :: (Monad m, MonadWriter GameHistory m) => Sign -> Board -> m GameResult

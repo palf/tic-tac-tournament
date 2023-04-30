@@ -1,4 +1,5 @@
 {-# LANGUAGE ConstraintKinds     #-}
+{-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE DerivingVia         #-}
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
@@ -17,6 +18,7 @@ import           Control.Monad.IO.Class   (MonadIO, liftIO)
 import           Control.Monad.State      (MonadState, StateT)
 import           Control.Monad.Writer     (MonadWriter, WriterT)
 import           Data.Map                 (Map)
+import           GHC.Generics
 import           System.Directory         (doesFileExist)
 
 import           Board
@@ -24,7 +26,26 @@ import           Board
 
 type BoardString = String
 type PositionString = String
-type Weights = Map BoardString (Map PositionString Float)
+
+data Report
+  = Report
+    { played :: Int
+    , won    :: Int
+    , drawn  :: Int
+    , lost   :: Int
+    }
+  deriving (Eq, Generic, Show)
+
+
+instance Aeson.ToJSON Report
+instance Aeson.FromJSON Report
+
+
+emptyReport :: Report
+emptyReport = Report 0 0 0 0
+
+
+type Weights = Map BoardString (Map PositionString Report)
 
 
 defaultWeightValue :: Float
@@ -56,73 +77,64 @@ getWeight weights board position = Maybe.fromMaybe defaultWeightValue $ do
   let (boardKey, rotInfo) = bestBoardKey board
   xs <- Map.lookup boardKey weights
 
-  let positionKey = positionToString (unrotatePosition rotInfo position)
-  Map.lookup positionKey xs
+  let positionKey = positionToString (applyTransformPos rotInfo position)
+  report <- Map.lookup positionKey xs
+
+  if played report < 10
+     then Nothing
+     else if won report == 0
+       then pure 0
+       else if lost report == 0
+         then pure 1
+         else Just $ fromIntegral (won report) / fromIntegral (played report)
 
 
-type Choice = (Board, Move)
+type Choice = (Board, Position)
 
-
-modifyWeight :: (MonadIO m, HasWeights m) => (Float -> Float) -> Choice -> m ()
+modifyWeight :: (MonadIO m, HasWeights m) => (Report -> Report) -> Choice -> m ()
 modifyWeight op choice = do
   weights <- readWeights
 
-  let (board, Just position) = choice
+  let (board, position) = choice
   let (boardKey, rotInfo) = bestBoardKey board
 
-  let (posWeights :: Map PositionString Float) =
+  let (posWeights :: Map PositionString Report) =
         Maybe.fromMaybe mempty $ Map.lookup boardKey weights
 
-  let positionKey = positionToString (unrotatePosition rotInfo position)
+  let positionKey = positionToString (applyTransformPos rotInfo position)
 
-  let (value :: Float) =
-        Maybe.fromMaybe defaultWeightValue $ Map.lookup positionKey posWeights
+  let (value :: Report) =
+        Maybe.fromMaybe emptyReport $ Map.lookup positionKey posWeights
 
   let newValue = op value
 
-  let (newPosWeights :: Map PositionString Float) =
+  let (newPosWeights :: Map PositionString Report) =
         Map.alter (\_ -> Just newValue) positionKey posWeights
 
   let (newWeights :: Weights) =
         Map.alter (\_ -> Just newPosWeights) boardKey weights
 
-  liftIO $ print
-    ( "modify"
-    , ("choice", choice)
-    , ( "board", board)
-    , ( "boardKey", boardKey)
-    , ( "rotInfo", rotInfo)
-    , ( "posWeights", posWeights)
-    , ( "positionKey", positionKey)
-    , ( "value", value)
-    )
-
   writeWeights newWeights
+
+
+increase x = x { played = played x + 1, won = won x + 1 }
+decrease x = x { played = played x + 1, lost = lost x + 1 }
+steady x = x { played = played x + 1, drawn = drawn x + 1 }
 
 
 increaseWeights :: (MonadIO m, HasWeights m) => [Choice] -> m ()
 increaseWeights = mapM_ (modifyWeight increase)
-  where
-    increase x = min 1 (x + 0.1)
+
 
 
 decreaseWeights :: (MonadIO m, HasWeights m) => [Choice] -> m ()
 decreaseWeights = mapM_ (modifyWeight decrease)
-  where
-    decrease x = max 0 (x - 0.1)
 
 
 steadyWeights :: (MonadIO m, HasWeights m) => [Choice] -> m ()
 steadyWeights = mapM_ (modifyWeight steady)
-  where
-    steady x = x + ((0.5 - x) / 2)
 
 
 class HasWeights m where
   readWeights :: m Weights
   writeWeights :: Weights -> m ()
-
-
-instance HasWeights IO where
-  readWeights = readWeightsFromFile
-  writeWeights = writeWeightsToFile

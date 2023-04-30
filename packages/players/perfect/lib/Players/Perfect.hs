@@ -50,21 +50,24 @@ bestPlay playerSign board = do
           if Maybe.isJust loser
             then pure loser
             else do
-              let (s , r ) = bestRotation board
-              let (thing :: [Position]) = fromRight allowed $
-                    runExcept (fmap (unrotatePosition r) <$> selectPositions s)
+              let (boardKey , transform) = bestRotation board
+              let goodMoves = selectPositions boardKey
 
-              let disallowed = List.filter (`notElem` allowed) thing
+              let (remappedMoves :: Except String [Position]) = fmap (revertTransformPos transform) <$> goodMoves
+              let (positions :: [Position]) = fromRight [] $ runExcept remappedMoves
+
+              let disallowed = List.filter (`notElem` allowed) positions
               unless (null disallowed) $ liftIO $ do
-                print ("a", allowed)
-                print ("d", disallowed)
-                print ("s", s)
-                print ("r", r)
-                print ("t", thing)
+                print ("allowed", allowed)
+                print ("disallowed", disallowed)
+                print ("boardKey", boardKey)
+                print ("transform", transform)
+                print ("good moves", runExcept goodMoves)
+                print ("remapped", remappedMoves)
                 printGame $ pure board
                 error "move disallowed"
 
-              liftIO $ randomElementIO thing
+              liftIO $ randomElementIO positions
 
 
 selectPositions :: String -> Except String [Position]
@@ -73,7 +76,7 @@ selectPositions "        X" = pure [B2]
 selectPositions "       X " = pure [B2, C1, C3]
 selectPositions "       XO" = pure [A1, A3, B2]
 selectPositions "      O X" = pure [A1, A2, A3, B1, B2, B3]
-selectPositions "      OXX" = pure [A1, A2, A3, B1, B2, B3]
+selectPositions "      OXX" = pure [A1, A2, B1, B2]
 selectPositions "     O X " = pure [A1, A3, B1, B2, C3]
 selectPositions "     O XX" = pure [C1]
 selectPositions "     OOXX" = pure [B2]
@@ -98,7 +101,7 @@ selectPositions "    OXOX " = pure [A3]
 selectPositions "    OXX  " = pure [A2, A3, C2, C3]
 selectPositions "    OXX O" = pure [A1]
 selectPositions "    OXXO " = pure [A2]
-selectPositions "    X    " = pure [A1, A2, A3, B1, B3, C1, C2, C3]
+selectPositions "    X    " = pure [A1, A3, C1, C3]
 selectPositions "    X   O" = pure [B3, C2]
 selectPositions "    X  O " = pure [A2]
 selectPositions "    X  OX" = pure [A1]
@@ -154,7 +157,7 @@ selectPositions "  O OXXOX" = pure [A2]
 selectPositions "  O OXXX " = pure [C3]
 selectPositions "  O OXXXO" = pure [A1]
 selectPositions "  O X OXX" = pure [A1, A2]
-selectPositions "  O X X  " = pure [A1, A2, B3, C3]
+selectPositions "  O X X  " = pure [A1, C3]
 selectPositions "  OO X  X" = pure [A1, C1]
 selectPositions "  OO X X " = pure [A1, A2, B2, C1]
 selectPositions "  OO X XX" = pure [C1]

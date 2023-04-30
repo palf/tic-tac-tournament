@@ -1,20 +1,21 @@
 {-# LANGUAGE ConstraintKinds     #-}
 {-# LANGUAGE DerivingVia         #-}
 {-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE FlexibleInstances    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Players.Learner where
 
-import qualified Control.Monad.Random       as Random
-import qualified Control.Monad.State        as State
-import qualified Control.Monad.Writer       as Writer
-import qualified Data.List                  as List
+import qualified Control.Monad.Random      as Random
+import qualified Control.Monad.State       as State
+import qualified Control.Monad.Writer      as Writer
+import qualified Data.List                 as List
 
-import           Control.Monad.IO.Class     (MonadIO, liftIO)
-import           Control.Monad.State        (MonadState, StateT)
-import           Control.Monad.Trans.Class  (lift)
-import           Control.Monad.Writer       (MonadWriter, WriterT)
-import           Safe                       (headMay, lastMay)
+import           Control.Monad.IO.Class    (MonadIO, liftIO)
+import           Control.Monad.State       (MonadState, StateT)
+import           Control.Monad.Trans.Class (lift)
+import           Control.Monad.Writer      (MonadWriter, WriterT)
+import           Safe                      (headMay, lastMay)
 
 import           Board
 import           Players.Learner.Weights
@@ -41,19 +42,33 @@ pickAction n
   | otherwise = liftIO $ Random.weighted [(Exploit, n), (Explore, 1 - n)]
 
 
+class (Monad m) => RecordsChoice m where
+  recordChoice :: Choice -> m ()
 
-optimiseFor :: (MonadIO m, HasWeights m) => Sign -> Board -> StateT [Choice] m Move
+
+instance (Monad m) => RecordsChoice (StateT [Choice] m) where
+  recordChoice choice = do
+    choices <- State.get
+    State.put $ choices <> [choice]
+
+instance (Monad m) => RecordsChoice (WriterT [Choice] m) where
+  recordChoice = Writer.tell . pure
+
+
+optimiseFor :: (MonadIO m, HasWeights m, RecordsChoice m) => Sign -> Board -> m Move
 optimiseFor sign board = do
   action <- pickAction 0.8
 
   case action of
     Explore -> do
       move <- pickAny board
-      recordExploration board move
+      case move of
+        (Just m) -> recordChoice (board, m)
+        _        -> pure ()
       pure move
 
     Exploit -> do
-      weights <- lift readWeights
+      weights <- readWeights
       let validMoves = getValidMoves board
       let weightedMoves = zip validMoves $ getWeight weights board <$> validMoves
       let moves = List.sortOn snd weightedMoves
@@ -62,15 +77,7 @@ optimiseFor sign board = do
                O -> fst <$> headMay moves
                _ -> Nothing
 
-      liftIO $ print (sign, selection, moves)
-
       pure selection
 
 
 type ChoiceRecorder m = MonadState [Choice] m
-
-
-recordExploration :: (MonadIO m, ChoiceRecorder m) => Board -> Move -> m ()
-recordExploration board move = do
-  choices <- State.get
-  State.put $ choices <> [(board, move)]
