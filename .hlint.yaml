@@ -64,6 +64,7 @@
 - error: {name: "move pure", lhs: "case a of ; Nothing -> pure y ; Just v -> pure x", rhs: "pure $ case a of ; Just v -> x ; Nothing -> y"}
 - error: {name: "move pure", lhs: "case a of ; Left e -> pure x ; Right v -> pure y", rhs: "pure $ case a of ; Left e -> x ; Right v -> y"}
 - error: {name: "assert blank", lhs: "assertEqual \"\" x y", rhs: "x @=? y"}
+- warn: {name: "maybe Nothing", lhs: "fromMaybe x Nothing", rhs: "x"}
 
 
 # Turn on hints that are off by default

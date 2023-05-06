@@ -11,8 +11,12 @@ build-type:     Simple
 
 library
   exposed-modules:
-      Players.Learner
+      Players.Learner.Actions
+      Players.Learner.Choices
+      Players.Learner.File
       Players.Learner.Weights
+      Players.Learner01
+      Players.Learner02
   other-modules:
       Paths_players_learner
   hs-source-dirs:
@@ -47,6 +51,7 @@ test-suite learner
   type: exitcode-stdio-1.0
   main-is: Main.hs
   other-modules:
+      Tests.Learner.Weights
       Paths_players_learner
   hs-source-dirs:
       test

@@ -1,6 +1,7 @@
 {-# LANGUAGE ConstraintKinds     #-}
 {-# LANGUAGE DerivingVia         #-}
 {-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Players.Perfect where
@@ -10,11 +11,13 @@ import qualified Control.Monad.Random   as Random
 import qualified Data.List              as List
 import qualified Data.List.Split        as Split
 import qualified Data.Maybe             as Maybe
+import qualified Data.Text              as Text
 
 import           Control.Monad          (unless)
 import           Control.Monad.Except   (Except, runExcept)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Either
+import           Data.Text              (Text)
 
 import           Board
 import           Play
@@ -50,36 +53,36 @@ bestPlay playerSign board = do
           if Maybe.isJust loser
             then pure loser
             else do
-              let (boardKey , transform) = bestRotation board
+              let (boardKey, transform) = getBoardKey board
               let goodMoves = selectPositions boardKey
 
-              let (remappedMoves :: Except String [Position]) = fmap (revertTransformPos transform) <$> goodMoves
+              let (remappedMoves :: Except Text [Position]) = fmap (identifyPosSource transform) <$> goodMoves
               let (positions :: [Position]) = fromRight [] $ runExcept remappedMoves
 
               let disallowed = List.filter (`notElem` allowed) positions
               unless (null disallowed) $ liftIO $ do
-                print ("allowed", allowed)
-                print ("disallowed", disallowed)
-                print ("boardKey", boardKey)
-                print ("transform", transform)
-                print ("good moves", runExcept goodMoves)
-                print ("remapped", remappedMoves)
+                print ("allowed"    :: String, allowed)
+                print ("disallowed" :: String, disallowed)
+                print ("boardKey"   :: String, boardKey)
+                print ("transform"  :: String, transform)
+                print ("good moves" :: String, runExcept goodMoves)
+                print ("remapped"   :: String, remappedMoves)
                 printGame $ pure board
                 error "move disallowed"
 
               liftIO $ randomElementIO positions
 
 
-selectPositions :: String -> Except String [Position]
+selectPositions :: Text -> Except Text [Position]
 selectPositions "         " = pure [A1, A2, A3, B1, B2, B3, C1, C2, C3]
 selectPositions "        X" = pure [B2]
+selectPositions "       OX" = pure [A1, A2, A3, B1, B2, B3, C1]
 selectPositions "       X " = pure [B2, C1, C3]
 selectPositions "       XO" = pure [A1, A3, B2]
 selectPositions "      O X" = pure [A1, A2, A3, B1, B2, B3]
 selectPositions "      OXX" = pure [A1, A2, B1, B2]
 selectPositions "     O X " = pure [A1, A3, B1, B2, C3]
-selectPositions "     O XX" = pure [C1]
-selectPositions "     OOXX" = pure [B2]
+selectPositions "     OOXX" = pure [B1, B2]
 selectPositions "     OX  " = pure [A1, A2, A3, B1, B2, C3]
 selectPositions "     OXOX" = pure [A1, A2, B1, B2]
 selectPositions "     OXX " = pure [C3]
@@ -158,6 +161,7 @@ selectPositions "  O OXXX " = pure [C3]
 selectPositions "  O OXXXO" = pure [A1]
 selectPositions "  O X OXX" = pure [A1, A2]
 selectPositions "  O X X  " = pure [A1, C3]
+selectPositions "  O X XO " = pure [A1, A2, B1, B3, C3]
 selectPositions "  OO X  X" = pure [A1, C1]
 selectPositions "  OO X X " = pure [A1, A2, B2, C1]
 selectPositions "  OO X XX" = pure [C1]
@@ -208,8 +212,6 @@ selectPositions "  X O X  " = pure [A2, B1, B3, C2]
 selectPositions "  X O XO " = pure [A2]
 selectPositions "  X O XOX" = pure [A2]
 selectPositions "  X OOXX " = pure [C3]
-selectPositions "  X OOXXO" = pure [A1, B1]
-selectPositions "  X OOXXO" = pure [A1]
 selectPositions "  XO   X " = pure [B2, C1]
 selectPositions "  XO   XO" = pure [A2]
 selectPositions "  XO  OX " = pure [A1]
@@ -247,6 +249,7 @@ selectPositions "  XX XOO " = pure [B2, C1]
 selectPositions "  XXO O X" = pure [B3]
 selectPositions "  XXO OX " = pure [A1, A2, B3, C3]
 selectPositions "  XXO OXO" = pure [A1]
+selectPositions "  XXOO  X" = pure [A1, A2, C1, C2]
 selectPositions "  XXOO X " = pure [A1, C1]
 selectPositions "  XXOO XO" = pure [A1]
 selectPositions "  XXOOO X" = pure [A1, A2, C2]
@@ -260,6 +263,7 @@ selectPositions "  XXXOO O" = pure [C2]
 selectPositions "  XXXOOXO" = pure [A2]
 selectPositions " O O X X " = pure [C3]
 selectPositions " O O XX X" = pure [A3]
+selectPositions " O O XXXO" = pure [A1, A3, B2]
 selectPositions " O OXX XO" = pure [A1, A3, C1]
 selectPositions " O OXXOX " = pure [A1]
 selectPositions " O OXXOXX" = pure [A1, A3]
@@ -295,12 +299,10 @@ selectPositions " OXXX OXO" = pure [B3]
 selectPositions " OXXXO XO" = pure [C1]
 selectPositions " OXXXOO X" = pure [A1]
 selectPositions " OXXXOOX " = pure [A1, C3]
-selectPositions " OXXXOOX " = pure [A1, C3]
 selectPositions " X  OXXOO" = pure [A1]
 selectPositions " X XOX O " = pure [A1, A3, C1, C3]
 selectPositions " XOX  OOX" = pure [B2]
 selectPositions " XOXO XOX" = pure [A1]
-selectPositions " XOXOOX X" = pure [A1, C2]
 selectPositions " XOXOOX X" = pure [A1, C2]
 selectPositions " XOXX OOX" = pure [A1, B3]
 selectPositions "O O  XXXO" = pure [A2, B2]
@@ -321,4 +323,4 @@ selectPositions "OOXX  OXX" = pure [B3]
 selectPositions "OOXX OX X" = pure [B2, C2]
 selectPositions "OOXXO X X" = pure [C2]
 
-selectPositions s           = Except.throwError ("unknown board <\n" <> List.intercalate "\n" (Split.chunksOf 3 s) <> "\n>")
+selectPositions s           = Except.throwError (Text.pack $ "unknown board <\n" <> List.intercalate "\n" (Split.chunksOf 3 $ Text.unpack s) <> "\n>")

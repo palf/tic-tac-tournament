@@ -19,6 +19,7 @@ library:
     - transformers
     - split
     - directory
+    - vector
     - MonadRandom
     - array
     - random

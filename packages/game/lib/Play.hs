@@ -5,19 +5,20 @@ module Play
   ( GameHistory
   , GameResult (..)
   , Player (..)
+  , Players
   , play
-  , play1
   , printGame
   ) where
 
-import qualified Control.Monad.Writer as Writer
-import qualified Data.Foldable        as Foldable
-import qualified Data.Sequence        as Seq
+import qualified Control.Monad.State as State
+import qualified Data.Foldable               as Foldable
+import qualified Data.Sequence               as Seq
+
+import           Control.Monad.State (MonadState)
+import           Data.Map.Strict             (Map, (!?))
+import           Data.Sequence               (Seq)
 
 import           Board
-import           Control.Monad.Writer (MonadWriter, runWriterT)
-import           Data.Map.Strict      (Map, (!?))
-import           Data.Sequence        (Seq)
 
 
 type GameHistory = Seq Board
@@ -37,16 +38,12 @@ data GameResult
 
 type Players m = Map Sign (Player m)
 
--- play :: (Monad m, MonadTrans t, MonadWriter GameHistory (t m)) => Players (t m) -> m (GameResult, GameHistory)
-play players = runWriterT $ play1 players
 
-
-play1 :: forall m. (MonadWriter GameHistory m) => Players m -> m GameResult
--- play1 players = play' X $ createBoard [X, Empty, Empty, Empty, O, O, Empty, Empty, X]
-play1 players = play' X initialBoard
+play :: forall m. (MonadState GameHistory m) => Players m -> m GameResult
+play players = play' X initialBoard
 
   where
-    play' :: (Monad m, MonadWriter GameHistory m) => Sign -> Board -> m GameResult
+    play' :: (Monad m, MonadState GameHistory m) => Sign -> Board -> m GameResult
     play' sign board
       | Just winner <- findWinner board
         = pure (Winner winner)
@@ -60,7 +57,10 @@ play1 players = play' X initialBoard
             ( \(Player mv) -> mv board >>= maybe
                 ( pure $ NoMoves sign )
                 ( \x -> let k = makeMove board sign x
-                          in Writer.tell (pure k) >> play' ( nextSign sign ) k
+                          in do
+                            rs <- State.get
+                            State.put (rs <> pure k)
+                            play' ( nextSign sign ) k
                 )
             )
             ( players !? sign )

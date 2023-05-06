@@ -4,7 +4,6 @@ import           Test.Tasty
 import           Test.Tasty.HUnit
 
 import           Board
-import           Utils
 
 
 makeMoveTests :: TestTree

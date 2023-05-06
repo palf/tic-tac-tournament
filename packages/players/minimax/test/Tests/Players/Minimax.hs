@@ -10,9 +10,9 @@ import           Players.Minimax
 playerMinimaxTests :: TestTree
 playerMinimaxTests = testGroup "minimax"
   [ testCase "win is greater than loss" $ do
-      WinForX > LossForX @? "win beats loss"
+      WinForX > WinForO @? "win beats loss"
       WinForX > Draw @? "win beats draw"
-      Draw > LossForX @? "draw beats loss"
+      Draw > WinForO @? "draw beats loss"
 
   , testCase "assess 06" $ do
       -- X O X
@@ -26,21 +26,21 @@ playerMinimaxTests = testGroup "minimax"
       -- X _ _
       -- O O _
       let board = createBoard [ X , X , O , X , Empty, Empty, O , O, Empty ]
-      assess X board @?= [(B2, LossForX), (B3, LossForX), (C3, LossForX)]
+      assess X board @?= [(B2, WinForO), (B3, WinForO), (C3, WinForO)]
 
   , testCase "assess 08" $ do
       -- X O X
       -- _ _ _
       -- _ O _
       let board = createBoard [ X, O, X, Empty, Empty, Empty, Empty, O, Empty ]
-      assess X board @?= [(B1, LossForX), (B2, WinForX), (B3, LossForX), (C1, LossForX), (C3, LossForX)]
+      assess X board @?= [(B1, WinForO), (B2, WinForX), (B3, WinForO), (C1, WinForO), (C3, WinForO)]
 
   , testCase "assess 09" $ do
       -- X O X
       -- _ X _
       -- _ O O
       let board = createBoard [ X, O, X, Empty, X, Empty, Empty, O, O ]
-      assess X board @?= [(B1, LossForX), (B3, LossForX), (C1, WinForX)]
+      assess X board @?= [(B1, WinForO), (B3, WinForO), (C1, WinForX)]
 
   , testCase "optimiseFor 09" $ do
       -- X O X
@@ -62,7 +62,7 @@ playerMinimaxTests = testGroup "minimax"
       -- O O X
       -- _ _ _
       let board = createBoard [ X, O, X, O, O, X, Empty, Empty, Empty ]
-      assess X board @?= [ (C1, LossForX), (C2, Draw), (C3, WinForX) ]
+      assess X board @?= [ (C1, WinForO), (C2, Draw), (C3, WinForX) ]
 
       mpos <- optimiseFor X board
       mpos @?= Just C3
@@ -92,7 +92,7 @@ playerMinimaxTests = testGroup "minimax"
       let board = createBoard [ X, O, O, X, Empty, Empty, O, X, Empty ]
 
       assess X board @?=
-        [ (B2, WinForX), (B3, LossForX), (C3, LossForX) ]
+        [ (B2, WinForX), (B3, WinForO), (C3, WinForO) ]
 
   , testCase "assess 14" $ do
       -- X _ _
@@ -101,7 +101,7 @@ playerMinimaxTests = testGroup "minimax"
       let board = createBoard [ X, Empty, Empty, Empty, Empty, O, Empty, Empty, Empty ]
 
       assess X board @?=
-        [ (A2, LossForX)
+        [ (A2, WinForO)
         , (A3, WinForX)
         , (B1, Draw)
         , (B2, WinForX)

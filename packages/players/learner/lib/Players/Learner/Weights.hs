@@ -1,140 +1,85 @@
 {-# LANGUAGE ConstraintKinds     #-}
-{-# LANGUAGE DeriveGeneric       #-}
 {-# LANGUAGE DerivingVia         #-}
 {-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE FlexibleInstances   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Players.Learner.Weights where
+module Players.Learner.Weights
+  ( HasWeights (..)
+  , Score
+  , Weights
+  , getWeight
+  , modifyWeight
+  , toward
+  ) where
 
-import qualified Control.Monad.State      as State
-import qualified Control.Monad.Writer     as Writer
-import qualified Data.Aeson               as Aeson
-import qualified Data.Aeson.Encode.Pretty as Pretty
-import qualified Data.ByteString.Lazy     as Lazy
-import qualified Data.Map                 as Map
-import qualified Data.Maybe               as Maybe
+import qualified Control.Monad.State.Strict as State
+import qualified Data.Map                   as Map
+import qualified Data.Maybe                 as Maybe
 
-import           Control.Monad.IO.Class   (MonadIO, liftIO)
-import           Control.Monad.State      (MonadState, StateT)
-import           Control.Monad.Writer     (MonadWriter, WriterT)
-import           Data.Map                 (Map)
-import           GHC.Generics
-import           System.Directory         (doesFileExist)
+import           Control.Monad.State.Strict (StateT)
+import           Data.Map                   (Map)
+import           Data.Text                  (Text)
 
 import           Board
+import           Players.Learner.Choices
 
 
-type BoardString = String
-type PositionString = String
 
-data Report
-  = Report
-    { played :: Int
-    , won    :: Int
-    , drawn  :: Int
-    , lost   :: Int
-    }
-  deriving (Eq, Generic, Show)
+type Score = Float
 
-
-instance Aeson.ToJSON Report
-instance Aeson.FromJSON Report
-
-
-emptyReport :: Report
-emptyReport = Report 0 0 0 0
-
-
-type Weights = Map BoardString (Map PositionString Report)
 
 
 defaultWeightValue :: Float
 defaultWeightValue = 0.5
 
 
-weightsFile :: FilePath
-weightsFile = "weights.json"
+type Weights = Map BoardKey (Map Text Score)
 
 
-readWeightsFromFile :: (MonadIO m) => m Weights
-readWeightsFromFile = liftIO $ do
-  exists <- doesFileExist weightsFile
-  if exists
-    then do
-      x <- Aeson.eitherDecode <$> Lazy.readFile weightsFile
-      either mempty pure x
+-- forall ws. (writeWeights ws >> readWeights) == ws
+class (Monad m) => HasWeights m where
+  readWeights :: m Weights
+  writeWeights :: Weights -> m ()
 
-    else do
-      pure mempty
-
-
-writeWeightsToFile :: (MonadIO m) => Weights -> m ()
-writeWeightsToFile = liftIO . Lazy.writeFile weightsFile . Pretty.encodePretty
+instance (Monad m) => HasWeights (StateT Weights m) where
+  readWeights = State.get
+  writeWeights = State.put
 
 
 getWeight :: Weights -> Board -> Position -> Float
 getWeight weights board position = Maybe.fromMaybe defaultWeightValue $ do
-  let (boardKey, rotInfo) = bestBoardKey board
+  let (boardKey, rotInfo) = getBoardKey board
   xs <- Map.lookup boardKey weights
 
-  let positionKey = positionToString (applyTransformPos rotInfo position)
-  report <- Map.lookup positionKey xs
-
-  if played report < 10
-     then Nothing
-     else if won report == 0
-       then pure 0
-       else if lost report == 0
-         then pure 1
-         else Just $ fromIntegral (won report) / fromIntegral (played report)
+  let posTarget = identifyPosTarget rotInfo position
+  let positionKey = positionToText posTarget
+  Map.lookup positionKey xs
 
 
-type Choice = (Board, Position)
-
-modifyWeight :: (MonadIO m, HasWeights m) => (Report -> Report) -> Choice -> m ()
+modifyWeight :: (HasWeights m) => (Score -> Score) -> Choice -> m Score
 modifyWeight op choice = do
   weights <- readWeights
 
-  let (board, position) = choice
-  let (boardKey, rotInfo) = bestBoardKey board
+  let (_action, board, position) = choice
+  let (boardKey, rotInfo) = getBoardKey board
 
-  let (posWeights :: Map PositionString Report) =
-        Maybe.fromMaybe mempty $ Map.lookup boardKey weights
-
-  let positionKey = positionToString (applyTransformPos rotInfo position)
-
-  let (value :: Report) =
-        Maybe.fromMaybe emptyReport $ Map.lookup positionKey posWeights
-
-  let newValue = op value
-
-  let (newPosWeights :: Map PositionString Report) =
-        Map.alter (\_ -> Just newValue) positionKey posWeights
-
-  let (newWeights :: Weights) =
-        Map.alter (\_ -> Just newPosWeights) boardKey weights
+  let positionKey = positionToText (identifyPosTarget rotInfo position)
+  let (newWeights :: Weights)
+        = Map.alter
+          ( Just . Map.alter
+            ( Just . op . Maybe.fromMaybe defaultWeightValue
+            ) positionKey . Maybe.fromMaybe mempty
+          ) boardKey weights
 
   writeWeights newWeights
 
-
-increase x = x { played = played x + 1, won = won x + 1 }
-decrease x = x { played = played x + 1, lost = lost x + 1 }
-steady x = x { played = played x + 1, drawn = drawn x + 1 }
+  let (value :: Score) = getWeight newWeights board position
+  pure value
 
 
-increaseWeights :: (MonadIO m, HasWeights m) => [Choice] -> m ()
-increaseWeights = mapM_ (modifyWeight increase)
-
-
-
-decreaseWeights :: (MonadIO m, HasWeights m) => [Choice] -> m ()
-decreaseWeights = mapM_ (modifyWeight decrease)
-
-
-steadyWeights :: (MonadIO m, HasWeights m) => [Choice] -> m ()
-steadyWeights = mapM_ (modifyWeight steady)
-
-
-class HasWeights m where
-  readWeights :: m Weights
-  writeWeights :: Weights -> m ()
+toward :: (Num a, Fractional a) => a -> a -> a
+toward n x = x + difference * step
+  where
+    difference = n - x
+    step = 0.1

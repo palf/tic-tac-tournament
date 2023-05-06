@@ -9,191 +9,13 @@ version:        0.0.0.0
 description:    Please see the README
 build-type:     Simple
 
-executable learner-learner
+executable versus
   main-is: Main.hs
   other-modules:
+      Options
       Paths_versus
   hs-source-dirs:
-      bin/learner-learner
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      MonadRandom
-    , aeson
-    , base >=4.7 && <5
-    , bytestring
-    , containers
-    , deepseq
-    , game
-    , mtl
-    , optparse-applicative
-    , players-learner
-    , random
-    , random-shuffle
-    , scientific
-    , stm
-    , text
-    , time
-    , transformers
-    , unordered-containers
-    , uuid
-  default-language: Haskell2010
-
-executable learner-perfect
-  main-is: Main.hs
-  other-modules:
-      Paths_versus
-  hs-source-dirs:
-      bin/learner-perfect
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      MonadRandom
-    , aeson
-    , base >=4.7 && <5
-    , bytestring
-    , containers
-    , deepseq
-    , game
-    , mtl
-    , optparse-applicative
-    , players-learner
-    , players-perfect
-    , random
-    , random-shuffle
-    , scientific
-    , stm
-    , text
-    , time
-    , transformers
-    , unordered-containers
-    , uuid
-  default-language: Haskell2010
-
-executable minimax-random
-  main-is: Main.hs
-  other-modules:
-      Paths_versus
-  hs-source-dirs:
-      bin/minimax-random
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      MonadRandom
-    , aeson
-    , base >=4.7 && <5
-    , bytestring
-    , containers
-    , deepseq
-    , game
-    , mtl
-    , optparse-applicative
-    , players-minimax
-    , players-random
-    , random
-    , random-shuffle
-    , scientific
-    , stm
-    , text
-    , time
-    , transformers
-    , unordered-containers
-    , uuid
-  default-language: Haskell2010
-
-executable random-learner
-  main-is: Main.hs
-  other-modules:
-      Paths_versus
-  hs-source-dirs:
-      bin/random-learner
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      MonadRandom
-    , aeson
-    , base >=4.7 && <5
-    , bytestring
-    , containers
-    , deepseq
-    , game
-    , mtl
-    , optparse-applicative
-    , players-learner
-    , players-random
-    , random
-    , random-shuffle
-    , scientific
-    , stm
-    , text
-    , time
-    , transformers
-    , unordered-containers
-    , uuid
-  default-language: Haskell2010
-
-executable random-minimax
-  main-is: Main.hs
-  other-modules:
-      Paths_versus
-  hs-source-dirs:
-      bin/random-minimax
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      MonadRandom
-    , aeson
-    , base >=4.7 && <5
-    , bytestring
-    , containers
-    , deepseq
-    , game
-    , mtl
-    , optparse-applicative
-    , players-minimax
-    , players-random
-    , random
-    , random-shuffle
-    , scientific
-    , stm
-    , text
-    , time
-    , transformers
-    , unordered-containers
-    , uuid
-  default-language: Haskell2010
-
-executable random-perfect
-  main-is: Main.hs
-  other-modules:
-      Paths_versus
-  hs-source-dirs:
-      bin/random-perfect
-  ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
-  build-depends:
-      MonadRandom
-    , aeson
-    , base >=4.7 && <5
-    , bytestring
-    , containers
-    , deepseq
-    , game
-    , mtl
-    , optparse-applicative
-    , players-perfect
-    , players-random
-    , random
-    , random-shuffle
-    , scientific
-    , stm
-    , text
-    , time
-    , transformers
-    , unordered-containers
-    , uuid
-  default-language: Haskell2010
-
-executable random-random
-  main-is: Main.hs
-  other-modules:
-      Paths_versus
-  hs-source-dirs:
-      bin/random-random
+      bin
   ghc-options: -Wall -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       MonadRandom
@@ -213,6 +35,7 @@ executable random-random
     , random-shuffle
     , scientific
     , stm
+    , terminal-progress-bar
     , text
     , time
     , transformers

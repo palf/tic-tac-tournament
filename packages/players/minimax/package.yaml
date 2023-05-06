@@ -15,6 +15,7 @@ library:
     - array
     - game
     - bytestring
+    - deepseq
     - containers
     - deepseq
     - directory

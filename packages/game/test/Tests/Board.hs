@@ -1,5 +1,6 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 
+{-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
 module Tests.Board (boardTests) where
@@ -27,31 +28,58 @@ instance Arbitrary Position where
 
 instance Arbitrary Board where
   shrink = genericShrink
-  arbitrary
-    = Board
-    <$> arbitrary
-    <*> arbitrary
-    <*> arbitrary
-    <*> arbitrary
-    <*> arbitrary
-    <*> arbitrary
-    <*> arbitrary
-    <*> arbitrary
-    <*> arbitrary
+  arbitrary = Board <$> vectorOf 9 arbitrary
 
 
 boardTests :: TestTree
 boardTests = testGroup "board"
-  [ flipTests
-  , rotateTests
-  , boardKeyTests
-  , boardTransformTests
+  [ positionFlipTests
+  , positionRotateTests
   , positionTransformTests
+
+  , boardFlipTests
+  , boardRotateTests
+  , boardTransformTests
+
+  , boardKeyTests
   ]
 
 
-flipTests :: TestTree
-flipTests = testGroup "flip"
+positionFlipTests :: TestTree
+positionFlipTests = testGroup "position flip"
+  [ testCase "does not move the center column" $ do
+      let position = A2
+      identifyPosSource Flip position @?= position
+
+  , testCase "swaps the left and right columns" $ do
+      let position = A1
+      let expected = A3
+      identifyPosSource Flip position @?= expected
+  ]
+
+
+positionRotateTests :: TestTree
+positionRotateTests = testGroup "position rotate"
+  [ testCase "has no effect on center" $ do
+      identifyPosSource Rot1 B2 @?= B2
+
+  , testCase "rotates once clockwise" $ do
+      identifyPosSource Rot1 A1 @?= C1
+  ]
+
+
+positionTransformTests :: TestTree
+positionTransformTests = testGroup "position transforms"
+  [ testProperty "can reverse an applied transform" $ \(transform :: Transform, position :: Position) ->
+      (identifyPosTarget transform . identifyPosSource transform) position == position
+
+  , testProperty "can reverse an applied transform" $ \(transform :: Transform, position :: Position) ->
+      (identifyPosSource transform . identifyPosTarget transform) position == position
+  ]
+
+
+boardFlipTests :: TestTree
+boardFlipTests = testGroup "board flip"
   [ testCase "has no effect when empty" $ do
       applyTransform Flip initialBoard @?= initialBoard
 
@@ -66,8 +94,8 @@ flipTests = testGroup "flip"
   ]
 
 
-rotateTests :: TestTree
-rotateTests = testGroup "rotate"
+boardRotateTests :: TestTree
+boardRotateTests = testGroup "board rotate"
   [ testCase "has no effect when empty" $ do
       applyTransform Rot1 initialBoard @?= initialBoard
 
@@ -94,34 +122,11 @@ boardTransformTests = testGroup "board transforms"
     testBoard = createBoard [ O, Empty, X, X, O, Empty, Empty, O, X]
 
 
-positionTransformTests :: TestTree
-positionTransformTests = testGroup "position transforms"
-  [ testProperty "can reverse an applied transform" $ \(transform :: Transform, position :: Position) ->
-      revertTransformPos transform (applyTransformPos transform position) == position
-
-  , testProperty "preserves target across transform" $ \(transform :: Transform, board :: Board, position :: Position) ->
-      let transformedBoard = applyTransform transform board
-          transformedPos = applyTransformPos transform position
-          someSign = readBoard board position
-          otherSign = readBoard transformedBoard transformedPos
-
-       in someSign == otherSign
-
-  , testProperty "can lookup in old board" $ \(transform :: Transform, board :: Board, position :: Position) ->
-      let transformedBoard = applyTransform transform board
-          someSign = readBoard transformedBoard position
-          transformedPos = revertTransformPos transform position
-          otherSign = readBoard board transformedPos
-
-       in someSign == otherSign
-  ]
-
-
 boardKeyTests :: TestTree
 boardKeyTests = testGroup "board key"
   [ testProperty "all transforms return the same board key" $ \(transform :: Transform) ->
       let board = applyTransform transform basicBoard
-          (key, _) = bestBoardKey board
+          (key, _) = getBoardKey board
        in key == "  OXXOOXX"
 
   ]
