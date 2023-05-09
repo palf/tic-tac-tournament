@@ -10,7 +10,6 @@ import qualified Data.Maybe                 as Maybe
 import           Board
 import           Control.Monad.Random.Class (MonadRandom)
 import           Data.Functor               ((<&>))
-import Data.Ord
 import           System.Random.Shuffle      (shuffleM)
 
 

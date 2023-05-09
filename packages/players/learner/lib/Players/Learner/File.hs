@@ -23,7 +23,7 @@ readWeightsFromFile = liftIO $ do
   if exists
     then do
       x <- Aeson.eitherDecode <$> Lazy.readFile weightsFile
-      either mempty pure x
+      either error pure x
 
     else do
       pure mempty

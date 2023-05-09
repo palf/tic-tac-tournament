@@ -19,7 +19,6 @@ import           Data.Map.Strict     (Map, (!?))
 import           Data.Sequence       (Seq)
 
 import           Board
-import           Position
 
 
 type GameHistory = Seq Board

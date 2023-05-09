@@ -9,5 +9,4 @@ packages:
   - packages/players/minimax
   - packages/players/perfect
 
-  - packages/train
   - packages/versus

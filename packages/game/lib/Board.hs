@@ -1,9 +1,11 @@
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE DerivingVia                #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE OverloadedStrings          #-}
 
 module Board
   ( Board
-  , BoardKey
+  , BoardKey (..)
   , Move
   , Position (..)
   , Sign (..)
@@ -21,38 +23,23 @@ module Board
     -- for tests
   , Transform (..)
   , applyTransform
+  , boardToText
+  , boardToByteString
   , createBoard
   , readBoard
   , revertTransform
   ) where
 
+import qualified Data.Aeson      as Aeson
 import qualified Data.List       as List
 import qualified Data.List.Index as Index
 
+import           Data.ByteString (ByteString)
 import           Data.Text       (Text)
+import           Game.Position
+import           Game.Sign
 import           GHC.Generics
-import           Position
 
-
-data Sign = Empty | O | X deriving (Bounded, Enum, Eq, Generic, Ord, Show)
-
-
-signToString :: Sign -> String
-signToString Empty = " "
-signToString X     = "X"
-signToString O     = "O"
-
-
-signToText :: Sign -> Text
-signToText Empty = " "
-signToText X     = "X"
-signToText O     = "O"
-
-
-nextSign :: Sign -> Sign
-nextSign X     = O
-nextSign O     = X
-nextSign Empty = X
 
 
 type Move = Maybe Position
@@ -69,6 +56,45 @@ unboard (Board xs) = xs
 
 instance Show Board where
   show = boardToString
+
+
+boardToString :: Board -> String
+boardToString (Board xs) = concatMap signToString xs
+
+
+boardToByteString :: Board -> ByteString
+boardToByteString (Board xs)
+    = row1 <> "|" <> row2 <> "|" <> row3
+
+  where
+    ts = signToByteString <$> xs
+    row1 = head ts <> ts !! 1 <> ts !! 2
+    row2 = ts !! 3 <> ts !! 4 <> ts !! 5
+    row3 = ts !! 6 <> ts !! 7 <> ts !! 8
+
+
+boardToText :: Board -> Text
+boardToText (Board xs)
+    = row1 <> "|" <> row2 <> "|" <> row3
+
+  where
+    ts = signToText <$> xs
+    row1 = head ts <> ts !! 1 <> ts !! 2
+    row2 = ts !! 3 <> ts !! 4 <> ts !! 5
+    row3 = ts !! 6 <> ts !! 7 <> ts !! 8
+
+
+renderBoard :: Board -> String
+renderBoard board = unlines $ showRow . fmap (readBoard board) <$> ps
+  where
+    showRow :: [Sign] -> String
+    showRow = List.intercalate "|" . fmap signToString
+
+    ps =
+      [ [A1, A2, A3]
+      , [B1, B2, B3]
+      , [C1, C2, C3]
+      ]
 
 
 readBoard :: Board -> Position -> Sign
@@ -91,33 +117,7 @@ emptyBoard = createBoard (List.replicate 9 Empty)
 
 mapBoard :: (Position -> Position) -> Board -> Board
 mapBoard mapPos board = Board $
-  fmap (readBoard board . mapPos) allPositions
-
-
-boardToString :: Board -> String
-boardToString (Board xs) = concatMap signToString xs
-
-
-
-type BoardKey = Text
-
-
-boardToText :: Board -> BoardKey
-boardToText (Board xs) = foldMap signToText xs
-
-
-toLists :: Board -> [[Sign]]
-toLists board = (fmap . fmap) (readBoard board)
-  [ [A1, A2, A3]
-  , [B1, B2, B3]
-  , [C1, C2, C3]
-  ]
-
-
-renderBoard :: Board -> String
-renderBoard = unlines . fmap showRow . toLists
-  where
-    showRow = List.intercalate "|" . fmap signToString
+  readBoard board . mapPos <$> allPositions
 
 
 boardIsFull :: Board -> Bool
@@ -162,10 +162,13 @@ revertTransform :: Transform -> Board -> Board
 revertTransform t = mapBoard (identifyPosTarget t)
 
 
+newtype BoardKey
+  = BoardKey Text
+  deriving (Aeson.FromJSONKey, Aeson.ToJSONKey, Eq, Generic, Ord, Show)
+
+
 getBoardKey :: Board -> (BoardKey, Transform)
-getBoardKey board = head $ List.sortOn fst $ List.sortOn snd (permutations board)
-  where
-    permutations = getBoardKeys
+getBoardKey board = head $ List.sortOn fst $ List.sortOn snd (getBoardKeys board)
 
 
 getBoardKeys :: Board -> [(BoardKey, Transform)]
@@ -173,7 +176,7 @@ getBoardKeys board = (\x -> (prep x, x)) <$> transforms
   where
     transforms = [ None, Rot1 , Rot2 , Rot3 , Flip , FlipRot1 , FlipRot2 , FlipRot3 ]
 
-    prep x = boardToText (applyTransform x board)
+    prep x = BoardKey $ boardToText (applyTransform x board)
 
 
 

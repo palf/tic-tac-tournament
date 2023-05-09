@@ -4,11 +4,10 @@ import           Test.Tasty
 
 import           Tests.Board
 import           Tests.FindWinner
+import           Tests.Game.Position
 import           Tests.MakeMove
 
 
 main :: IO ()
 main = defaultMain $ testGroup "game"
-  [ boardTests, findWinnerTests, makeMoveTests]
-
-
+  [ positionTests, boardTests, findWinnerTests, makeMoveTests]

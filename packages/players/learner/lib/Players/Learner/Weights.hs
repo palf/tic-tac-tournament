@@ -19,22 +19,19 @@ import qualified Data.Maybe                 as Maybe
 
 import           Control.Monad.State.Strict (StateT)
 import           Data.Map                   (Map)
-import           Data.Text                  (Text)
 
 import           Board
 import           Players.Learner.Choices
 
 
-
 type Score = Float
-
 
 
 defaultWeightValue :: Float
 defaultWeightValue = 0.5
 
 
-type Weights = Map BoardKey (Map Text Score)
+type Weights = Map BoardKey (Map Position Score)
 
 
 -- forall ws. (writeWeights ws >> readWeights) == ws
@@ -53,7 +50,7 @@ getWeight weights board position = Maybe.fromMaybe defaultWeightValue $ do
   xs <- Map.lookup boardKey weights
 
   let posTarget = identifyPosTarget rotInfo position
-  let positionKey = positionToText posTarget
+  let positionKey = posTarget
   Map.lookup positionKey xs
 
 
@@ -64,7 +61,7 @@ modifyWeight op choice = do
   let (_action, board, position) = choice
   let (boardKey, rotInfo) = getBoardKey board
 
-  let positionKey = positionToText (identifyPosTarget rotInfo position)
+  let positionKey = identifyPosTarget rotInfo position
   let (newWeights :: Weights)
         = Map.alter
           ( Just . Map.alter
@@ -82,4 +79,4 @@ toward :: (Num a, Fractional a) => a -> a -> a
 toward n x = x + difference * step
   where
     difference = n - x
-    step = 0.1
+    step = 0.5

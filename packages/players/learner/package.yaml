@@ -56,3 +56,32 @@ tests:
       - uuid
       - game
       - transformers
+
+executables:
+  train:
+    main: Main.hs
+    source-dirs: bin
+    ghc-options:
+      - -threaded
+      - -rtsopts
+      - -with-rtsopts=-N
+    dependencies:
+      - MonadRandom
+      - aeson
+      - bytestring
+      - containers
+      - deepseq
+      - game
+      - mtl
+      - optparse-applicative
+      - players-learner
+      - random
+      - random-shuffle
+      - scientific
+      - stm
+      - terminal-progress-bar
+      - text
+      - time
+      - transformers
+      - unordered-containers
+      - uuid

@@ -5,6 +5,7 @@
 module Tests.Learner.Weights (weightTests) where
 
 import qualified Data.Map                   as Map
+import qualified Data.Aeson as Aeson
 
 import           Board
 import           Control.Monad.State.Strict (execStateT, runStateT)
@@ -17,7 +18,7 @@ import           Test.Tasty.HUnit
 
 
 weightTests :: TestTree
-weightTests = testGroup "weights" [ getWeightTests, modifyWeightTests ]
+weightTests = testGroup "weights" [ getWeightTests, modifyWeightTests, jsonTests ]
 
 
 getWeightTests :: TestTree
@@ -26,9 +27,9 @@ getWeightTests = testGroup "getWeight"
       -- _ _ O
       -- O X X
       -- X O X
-      getWeight weights testBoard A1 @?= 1.0
-      getWeight weights testBoard A2 @?= 0.0
-      getWeight weights testBoard A3 @?= 0.5
+      let ps = [A1, A2, A3, B1, B2, B3, C1, C2, C3]
+      let expected = [1.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+      getWeight weights testBoard <$> ps @?= expected
 
   , testCase "1 rotation" $ do
       -- X O _
@@ -98,7 +99,7 @@ getWeightTests = testGroup "getWeight"
     testBoard = createBoard [Empty, Empty, O, O, X, X, X, O, X]
 
     weights :: Weights
-    weights = Map.fromList [ ( "  OOXXXOX", Map.fromList [ ("A1", 1.0) , ("A2", 0.0) ]) ]
+    weights = Map.fromList [ ( BoardKey "  O|OXX|XOX", Map.fromList [ (A1, 1.0) , (A2, 0.0) ]) ]
 
 
 modifyWeightTests :: TestTree
@@ -110,7 +111,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [Empty, Empty, O, O, X, X, X, O, X]
       updatedWeights <- execStateT (decreaseWeight (board, A1) >> increaseWeight (board, A2) >> increaseWeight (board, A3)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 3
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 3
       getWeight updatedWeights board A1 @?= 0.9
       getWeight updatedWeights board A2 @?= 0.1
       getWeight updatedWeights board A3 @?= 0.6
@@ -122,7 +123,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [O, X, X, Empty, X, O, Empty, O, X]
       updatedWeights <- execStateT (decreaseWeight (board, C1) >> increaseWeight (board, B1)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board B1 @?= 0.1
       getWeight updatedWeights board C1 @?= 0.9
 
@@ -133,7 +134,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [X, O, X, X, X, O, O, Empty, Empty]
       updatedWeights <- execStateT (decreaseWeight (board, C3) >> increaseWeight (board, C2)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board C2 @?= 0.1
       getWeight updatedWeights board C3 @?= 0.9
 
@@ -144,7 +145,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [X, O, Empty, O, X, Empty, X, X, O]
       updatedWeights <- execStateT (decreaseWeight (board, A3) >> increaseWeight (board, B3)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board B3 @?= 0.1
       getWeight updatedWeights board A3 @?= 0.9
 
@@ -155,7 +156,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [O, Empty, Empty, X, X, O, X, O, X]
       updatedWeights <- execStateT (decreaseWeight (board, A3) >> increaseWeight (board, A2)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board A2 @?= 0.1
       getWeight updatedWeights board A3 @?= 0.9
 
@@ -166,7 +167,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [Empty, O, X, Empty, X, O, O, X, X]
       updatedWeights <- execStateT (decreaseWeight (board, A1) >> increaseWeight (board, B1)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board B1 @?= 0.1
       getWeight updatedWeights board A1 @?= 0.9
 
@@ -177,7 +178,7 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [X, O, X, O, X, X, Empty, Empty, O]
       updatedWeights <- execStateT (decreaseWeight (board, C1) >> increaseWeight (board, C2)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board C2 @?= 0.1
       getWeight updatedWeights board C1 @?= 0.9
 
@@ -188,20 +189,38 @@ modifyWeightTests = testGroup "modifyWeight"
       let board = createBoard [X, X, O, O, X, Empty, X, O, Empty]
       updatedWeights <- execStateT (decreaseWeight (board, C3) >> increaseWeight (board, B3)) weights
 
-      Map.size (updatedWeights ! "  OOXXXOX" ) @?= 2
+      Map.size (updatedWeights ! BoardKey "  O|OXX|XOX" ) @?= 2
       getWeight updatedWeights board B3 @?= 0.1
       getWeight updatedWeights board C3 @?= 0.9
 
   , testCase "returns the updated value" $ do
       let board = createBoard [X, X, O, O, X, Empty, X, O, Empty]
-      (x, updatedWeights) <- runStateT (decreaseWeight (board, C3)) weights
+      (x, _) <- runStateT (decreaseWeight (board, C3)) weights
 
       x @?= 0.9
   ]
 
   where
     weights :: Weights
-    weights = Map.fromList [ ( "  OOXXXOX", Map.fromList [ ("A1", 1.0) , ("A2", 0.0) ]) ]
+    weights = Map.fromList [ ( BoardKey "  O|OXX|XOX", Map.fromList [ (A1, 1.0) , (A2, 0.0) ]) ]
 
     increaseWeight (b, s) = modifyWeight (+ 0.1) (Exploit, b, s)
     decreaseWeight (b, s) = modifyWeight (\x -> x - 0.1) (Exploit, b, s)
+
+
+
+jsonTests :: TestTree
+jsonTests = testGroup "json"
+  [ testCase "encode" $ do
+      Aeson.encode weights @?= "{\"  O|OXX|XOX\":{\"A1\":1.0,\"A2\":0.0}}"
+
+  , testCase "decode" $ do
+      Aeson.eitherDecode "{\"  O|OXX|XOX\":{\"A1\":1.0,\"A2\":0.0}}" @?= Right weights
+
+  , testCase "both" $ do
+      Aeson.eitherDecode (Aeson.encode weights) @?= Right weights
+  ]
+
+  where
+    weights :: Weights
+    weights = Map.fromList [ ( BoardKey "  O|OXX|XOX", Map.fromList [ (A1, 1.0) , (A2, 0.0) ]) ]

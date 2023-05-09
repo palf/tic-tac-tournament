@@ -12,8 +12,9 @@ build-type:     Simple
 library
   exposed-modules:
       Board
+      Game.Position
+      Game.Sign
       Play
-      Position
   other-modules:
       Paths_game
   hs-source-dirs:
@@ -53,6 +54,7 @@ test-suite game
   other-modules:
       Tests.Board
       Tests.FindWinner
+      Tests.Game.Position
       Tests.MakeMove
       Utils
       Paths_game

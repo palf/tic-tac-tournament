@@ -6,7 +6,6 @@
 module Tests.Board (boardTests) where
 
 import qualified Data.List as List
-import qualified Data.Text as Text
 
 import           Test.Tasty
 import           Test.Tasty.HUnit
@@ -36,48 +35,10 @@ instance Arbitrary Board where
 
 boardTests :: TestTree
 boardTests = testGroup "board"
-  [ positionFlipTests
-  , positionRotateTests
-  , positionTransformTests
-
-  , boardFlipTests
+  [ boardFlipTests
   , boardRotateTests
   , boardTransformTests
-
   , boardKeyTests
-  ]
-
-
-positionFlipTests :: TestTree
-positionFlipTests = testGroup "position flip"
-  [ testCase "does not move the center column" $ do
-      let position = A2
-      identifyPosSource Flip position @?= position
-
-  , testCase "swaps the left and right columns" $ do
-      let position = A1
-      let expected = A3
-      identifyPosSource Flip position @?= expected
-  ]
-
-
-positionRotateTests :: TestTree
-positionRotateTests = testGroup "position rotate"
-  [ testCase "has no effect on center" $ do
-      identifyPosSource Rot1 B2 @?= B2
-
-  , testCase "rotates once clockwise" $ do
-      identifyPosSource Rot1 A1 @?= C1
-  ]
-
-
-positionTransformTests :: TestTree
-positionTransformTests = testGroup "position transforms"
-  [ testProperty "can reverse an applied transform" $ \(transform :: Transform, position :: Position) ->
-      (identifyPosTarget transform . identifyPosSource transform) position == position
-
-  , testProperty "can reverse an applied transform" $ \(transform :: Transform, position :: Position) ->
-      (identifyPosSource transform . identifyPosTarget transform) position == position
   ]
 
 
@@ -125,15 +86,16 @@ boardTransformTests = testGroup "board transforms"
     testBoard = createBoard [ O, Empty, X, X, O, Empty, Empty, O, X]
 
 
+
 boardKeyTests :: TestTree
 boardKeyTests = testGroup "board key"
   [ testProperty "all transforms return the same board key" $ \(transform :: Transform) ->
       let board = applyTransform transform basicBoard
           (key, _) = getBoardKey board
-       in key == "  OXXOOXX"
+       in key == BoardKey "  O|XXO|OXX"
 
   , testCase "key is always the alphabetically-first representation of a board" $ do
-      let strings = (\t -> Text.pack $ show $ applyTransform t basicBoard ) <$> [None, Rot1, Rot2, Rot2, Flip, FlipRot1, FlipRot2, FlipRot3]
+      let strings = (\t -> BoardKey $ boardToText $ applyTransform t basicBoard ) <$> [None, Rot1, Rot2, Rot2, Flip, FlipRot1, FlipRot2, FlipRot3]
           best = head $ List.sort strings
           (key, _) = getBoardKey basicBoard
 

@@ -13,7 +13,6 @@ import qualified Players.Learner02          as Learner02
 
 import           Control.Monad.IO.Class     (MonadIO, liftIO)
 import           Control.Monad.Random.Class (MonadRandom)
-import           Control.Monad.Trans.Class (MonadTrans)
 import           Control.Monad.State.Strict (MonadState, StateT, evalStateT,
                                              runStateT)
 import           Control.Monad.Trans.Class  (lift)
@@ -35,7 +34,6 @@ newtype App m a
 instance (Monad m) => MonadState GameHistory (App m) where
   get = pure mempty
   put _ = pure ()
-
 
 
 instance (Monad m) => Learner02.HasWeights' (App m) where

@@ -6,10 +6,8 @@
 module Main (main) where
 
 import qualified Control.Monad.State.Strict as State
-import qualified Data.Aeson                 as Aeson
 import qualified Data.Map.Strict            as Map
 import qualified Data.Maybe                 as Maybe
-import qualified Players.Learner.File       as File
 import qualified Players.Learner01          as Learner01
 import qualified Players.Learner02          as Learner02
 import qualified Players.Minimax            as Minimax
@@ -21,7 +19,6 @@ import           Control.Monad.Random.Class (MonadRandom)
 import           Control.Monad.State.Strict (MonadState, StateT, evalStateT,
                                              runStateT)
 import           Control.Monad.Trans.Class  (lift)
-import           Data.Foldable              (foldr')
 import           Data.Map.Strict            (Map)
 import           System.ProgressBar
 
@@ -86,7 +83,7 @@ run :: (MonadIO m, MonadState Stats m) => App m GameResult -> Weights -> m Weigh
 run game ws = do
   -- when (mod n 1000 == 0) $ Weights.writeWeightsToFile ws
 
-  ((gameResult, gameHistory, choices01, choices02), updatedWeights) <- runStateT (runApp game) ws
+  ((gameResult, _gameHistory, choices01, choices02), updatedWeights) <- runStateT (runApp game) ws
   updateStats gameResult
 
   uw1 <- evalStateT (case gameResult of
