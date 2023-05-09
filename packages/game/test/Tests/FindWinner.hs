@@ -10,7 +10,7 @@ import           Utils
 findWinnerTests :: TestTree
 findWinnerTests = testGroup "findWinner"
   [ testCase "initial no winner" $ do
-    findWinner initialBoard @?= Nothing
+    findWinner emptyBoard @?= Nothing
 
   , testCase "testboard no winner" $ do
     let board = setBoard

@@ -8,31 +8,30 @@ module Board
   , Position (..)
   , Sign (..)
   , boardIsFull
+  , emptyBoard
   , findWinner
   , getBoardKey
   , getValidMoves
   , identifyPosSource
   , identifyPosTarget
-  , initialBoard
   , makeMove
   , nextSign
   , positionToText
   , renderBoard
-
-  -- for tests
+    -- for tests
   , Transform (..)
   , applyTransform
-  , revertTransform
   , createBoard
-  , Board (..)
   , readBoard
+  , revertTransform
   ) where
 
-import qualified Data.List    as List
-import qualified Data.Text    as Text
+import qualified Data.List       as List
+import qualified Data.List.Index as Index
 
-import           Data.Text    (Text)
+import           Data.Text       (Text)
 import           GHC.Generics
+import           Position
 
 
 data Sign = Empty | O | X deriving (Bounded, Enum, Eq, Generic, Ord, Show)
@@ -50,44 +49,10 @@ signToText X     = "X"
 signToText O     = "O"
 
 
-signFromString :: String -> Maybe Sign
-signFromString " " = Just Empty
-signFromString "X" = Just X
-signFromString "O" = Just O
-signFromString _   = Nothing
-
-
 nextSign :: Sign -> Sign
 nextSign X     = O
 nextSign O     = X
 nextSign Empty = X
-
-
-data Position = A1 | A2 | A3 | B1 | B2 | B3 | C1 | C2 | C3 deriving
-  ( Bounded
-  , Enum
-  , Eq
-  , Generic
-  , Ord
-  , Show
-  )
-
-
-allPositions :: [Position]
-allPositions = [ A1 , A2 , A3 , B1 , B2 , B3 , C1 , C2 , C3 ]
-
-
-positionToText :: Position -> Text
-positionToText A1 = "A1"
-positionToText A2 = "A2"
-positionToText A3 = "A3"
-positionToText B1 = "B1"
-positionToText B2 = "B2"
-positionToText B3 = "B3"
-positionToText C1 = "C1"
-positionToText C2 = "C2"
-positionToText C3 = "C3"
-
 
 
 type Move = Maybe Position
@@ -106,27 +71,12 @@ instance Show Board where
   show = boardToString
 
 
-indexOf :: Position -> Int
-indexOf A1 = 0
-indexOf A2 = 1
-indexOf A3 = 2
-indexOf B1 = 3
-indexOf B2 = 4
-indexOf B3 = 5
-indexOf C1 = 6
-indexOf C2 = 7
-indexOf C3 = 8
-
-
 readBoard :: Board -> Position -> Sign
 readBoard board pos = unboard board !! indexOf pos
 
 
 writeBoard :: Board -> Sign -> Position -> Board
-writeBoard board sign pos = Board ys
-  where
-    ys = before <> pure sign <> List.drop 1 after
-    (before, after) = List.splitAt (indexOf pos) (unboard board)
+writeBoard (Board xs) sign pos = Board (Index.setAt (indexOf pos) sign xs)
 
 
 createBoard ::  [Sign] -> Board
@@ -135,8 +85,8 @@ createBoard xs
   | otherwise      = error "bad input for board"
 
 
-initialBoard :: Board
-initialBoard = createBoard (List.replicate 9 Empty)
+emptyBoard :: Board
+emptyBoard = createBoard (List.replicate 9 Empty)
 
 
 mapBoard :: (Position -> Position) -> Board -> Board
@@ -156,20 +106,8 @@ boardToText :: Board -> BoardKey
 boardToText (Board xs) = foldMap signToText xs
 
 
-boardFromString :: String -> Maybe Board
-boardFromString str
-  | length str == 9
-   = createBoard <$> mapM (\c -> signFromString [c]) str
-
-  | otherwise = Nothing
-
-
-toList :: Board -> [Sign]
-toList (Board xs) = xs
-
-
 toLists :: Board -> [[Sign]]
-toLists board = (fmap . fmap) (readBoard board )
+toLists board = (fmap . fmap) (readBoard board)
   [ [A1, A2, A3]
   , [B1, B2, B3]
   , [C1, C2, C3]
@@ -183,105 +121,37 @@ renderBoard = unlines . fmap showRow . toLists
 
 
 boardIsFull :: Board -> Bool
-boardIsFull = not . any isEmpty . toList
-
-
-isEmpty :: Sign -> Bool
-isEmpty Empty = True
-isEmpty _     = False
+boardIsFull (Board xs) = Empty `notElem` xs
 
 
 findWinner :: Board -> Maybe Sign
 findWinner (Board [a1, a2, a3, b1, b2, b3, c1, c2, c3])
-  | isNotEmpty a1 && a1 == a2 && a1 == a3 = Just a1
-  | isNotEmpty a1 && a1 == b1 && a1 == c1 = Just a1
+  | b2 /= Empty && b2 == b1 && b2 == b3 = Just b2
+  | b2 /= Empty && b2 == a2 && b2 == c2 = Just b2
 
-  | isNotEmpty b2 && b2 == b1 && b2 == b3 = Just b2
-  | isNotEmpty b2 && b2 == a2 && b2 == c2 = Just b2
+  | b2 /= Empty && b2 == a1 && b2 == c3 = Just b2
+  | b2 /= Empty && b2 == a3 && b2 == c1 = Just b2
 
-  | isNotEmpty b2 && b2 == a1 && b2 == c3 = Just b2
-  | isNotEmpty b2 && b2 == a3 && b2 == c1 = Just b2
+  | a1 /= Empty && a1 == a2 && a1 == a3 = Just a1
+  | a1 /= Empty && a1 == b1 && a1 == c1 = Just a1
 
-  | isNotEmpty c3 && c3 == b3 && c3 == a3 = Just c3
-  | isNotEmpty c3 && c3 == c1 && c3 == c2 = Just c3
+  | c3 /= Empty && c3 == b3 && c3 == a3 = Just c3
+  | c3 /= Empty && c3 == c1 && c3 == c2 = Just c3
 
   | otherwise = Nothing
-
-  where
-    isNotEmpty = (/=) Empty
 
 findWinner (Board _) = Nothing
 
 
 getValidMoves :: Board -> [Position]
-getValidMoves board = filter isValidMove allPositions
-  where
-    isValidMove :: Position -> Bool
-    isValidMove = isEmpty . readBoard board
+getValidMoves (Board xs) = [ pos | (sign, pos) <- zip xs allPositions, sign == Empty ]
 
 
 makeMove :: Board -> Sign -> Position -> Board
 makeMove board sign pos =
-  if readBoard board pos == Empty
+  if board `readBoard` pos == Empty
      then writeBoard board sign pos
      else error "bad make move"
-
-
-data Transform = None | Flip | Rot1 | FlipRot1 | Rot2 | FlipRot2 | Rot3 | FlipRot3 deriving
-  ( Bounded
-  , Enum
-  , Eq
-  , Generic
-  , Ord
-  , Show
-  )
-
-
--- read this as position at A1 comes from C1
-rotatePos :: Position -> Position
-rotatePos A1 = C1
-rotatePos A2 = B1
-rotatePos A3 = A1
-rotatePos B1 = C2
-rotatePos B2 = B2
-rotatePos B3 = A2
-rotatePos C1 = C3
-rotatePos C2 = B3
-rotatePos C3 = A3
-
-
-flipPos :: Position -> Position
-flipPos A1 = A3
-flipPos A2 = A2
-flipPos A3 = A1
-flipPos B1 = B3
-flipPos B2 = B2
-flipPos B3 = B1
-flipPos C1 = C3
-flipPos C2 = C2
-flipPos C3 = C1
-
-
-identifyPosSource :: Transform -> Position -> Position
-identifyPosSource None     = id
-identifyPosSource Rot1     = rotatePos
-identifyPosSource Rot2     = rotatePos . rotatePos
-identifyPosSource Rot3     = rotatePos . rotatePos  . rotatePos
-identifyPosSource Flip     = flipPos
-identifyPosSource FlipRot1 = rotatePos . flipPos
-identifyPosSource FlipRot2 = rotatePos . rotatePos . flipPos
-identifyPosSource FlipRot3 = rotatePos . rotatePos . rotatePos . flipPos
-
-
-identifyPosTarget :: Transform -> Position -> Position
-identifyPosTarget None     = id
-identifyPosTarget Rot1     = identifyPosSource Rot3
-identifyPosTarget Rot2     = identifyPosSource Rot2
-identifyPosTarget Rot3     = identifyPosSource Rot1
-identifyPosTarget Flip     = identifyPosSource Flip
-identifyPosTarget FlipRot1 = flipPos . rotatePos . rotatePos . rotatePos
-identifyPosTarget FlipRot2 = flipPos . rotatePos . rotatePos
-identifyPosTarget FlipRot3 = flipPos . rotatePos
 
 
 applyTransform :: Transform -> Board -> Board
@@ -289,19 +159,32 @@ applyTransform t = mapBoard (identifyPosSource t)
 
 
 revertTransform :: Transform -> Board -> Board
-revertTransform None     = id
-revertTransform Rot1     = applyTransform Rot3
-revertTransform Rot2     = applyTransform Rot2
-revertTransform Rot3     = applyTransform Rot1
-revertTransform Flip     = applyTransform Flip
-revertTransform FlipRot1 = mapBoard (flipPos . rotatePos . rotatePos . rotatePos)
-revertTransform FlipRot2 = mapBoard (flipPos . rotatePos . rotatePos )
-revertTransform FlipRot3 = mapBoard (flipPos . rotatePos )
+revertTransform t = mapBoard (identifyPosTarget t)
 
 
 getBoardKey :: Board -> (BoardKey, Transform)
 getBoardKey board = head $ List.sortOn fst $ List.sortOn snd (permutations board)
   where
-    permutations :: Board -> [( BoardKey, Transform )]
-    permutations b = (\x -> (boardToText (applyTransform x b), x)) <$>
-      [ None, Rot1 , Rot2 , Rot3 , Flip , FlipRot1 , FlipRot2 , FlipRot3 ]
+    permutations = getBoardKeys
+
+
+getBoardKeys :: Board -> [(BoardKey, Transform)]
+getBoardKeys board = (\x -> (prep x, x)) <$> transforms
+  where
+    transforms = [ None, Rot1 , Rot2 , Rot3 , Flip , FlipRot1 , FlipRot2 , FlipRot3 ]
+
+    prep x = boardToText (applyTransform x board)
+
+
+
+-- "abcdefghi"
+-- "ihgfedcba"
+
+-- "adgbehcfi"
+-- "ifchebgde"
+
+-- "cbafedihg"
+-- "ghidefabc"
+
+-- "cfibehadg"
+-- "gdahebifc"

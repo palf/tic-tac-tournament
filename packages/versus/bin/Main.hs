@@ -77,13 +77,6 @@ runApp op = do
 
 type Stats = Map GameResult Int
 
-counts :: (Ord a) => [a] -> Map a Int
-counts = foldr' (Map.alter f) Map.empty
-  where
-    f :: Maybe Int -> Maybe Int
-    f = Just . (1 +) . Maybe.fromMaybe 0
-
-
 
 updateStats :: (MonadState Stats m) => GameResult -> m ()
 updateStats = State.modify . Map.alter (Just . (+) 1 . Maybe.fromMaybe 0)

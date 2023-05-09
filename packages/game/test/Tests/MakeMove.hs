@@ -9,10 +9,10 @@ import           Board
 makeMoveTests :: TestTree
 makeMoveTests = testGroup "makeMove"
   [ testCase "?" $ do
-      let board = makeMove initialBoard X C3
+      let board = makeMove emptyBoard X C3
       readBoard board C3 @?= X
 
   , testCase "?" $ do
-      let board = makeMove initialBoard O C3
+      let board = makeMove emptyBoard O C3
       readBoard board C3 @?= O
   ]

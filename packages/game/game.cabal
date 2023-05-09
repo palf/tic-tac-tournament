@@ -13,6 +13,7 @@ library
   exposed-modules:
       Board
       Play
+      Position
   other-modules:
       Paths_game
   hs-source-dirs:
@@ -28,6 +29,7 @@ library
     , containers
     , deepseq
     , directory
+    , ilist
     , mtl
     , random
     , random-shuffle

@@ -19,6 +19,7 @@ import           Data.Map.Strict     (Map, (!?))
 import           Data.Sequence       (Seq)
 
 import           Board
+import           Position
 
 
 type GameHistory = Seq Board
@@ -40,7 +41,7 @@ type Players m = Map Sign (Player m)
 
 
 play :: forall m. (MonadState GameHistory m) => Players m -> m GameResult
-play players = play' X initialBoard
+play players = play' X emptyBoard
 
   where
     play' :: (Monad m, MonadState GameHistory m) => Sign -> Board -> m GameResult

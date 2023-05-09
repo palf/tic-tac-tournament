@@ -5,6 +5,9 @@
 
 module Tests.Board (boardTests) where
 
+import qualified Data.List as List
+import qualified Data.Text as Text
+
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import           Test.Tasty.QuickCheck
@@ -28,7 +31,7 @@ instance Arbitrary Position where
 
 instance Arbitrary Board where
   shrink = genericShrink
-  arbitrary = Board <$> vectorOf 9 arbitrary
+  arbitrary = createBoard <$> vectorOf 9 arbitrary
 
 
 boardTests :: TestTree
@@ -81,7 +84,7 @@ positionTransformTests = testGroup "position transforms"
 boardFlipTests :: TestTree
 boardFlipTests = testGroup "board flip"
   [ testCase "has no effect when empty" $ do
-      applyTransform Flip initialBoard @?= initialBoard
+      applyTransform Flip emptyBoard @?= emptyBoard
 
   , testCase "does not move the center column" $ do
       let board = createBoard [ Empty, X, Empty, O, Empty, O, X, O, X]
@@ -97,7 +100,7 @@ boardFlipTests = testGroup "board flip"
 boardRotateTests :: TestTree
 boardRotateTests = testGroup "board rotate"
   [ testCase "has no effect when empty" $ do
-      applyTransform Rot1 initialBoard @?= initialBoard
+      applyTransform Rot1 emptyBoard @?= emptyBoard
 
   , testCase "rotates once clockwise" $ do
       let board = createBoard [ X, Empty, Empty, Empty, O, X, O, X, Empty]
@@ -128,6 +131,13 @@ boardKeyTests = testGroup "board key"
       let board = applyTransform transform basicBoard
           (key, _) = getBoardKey board
        in key == "  OXXOOXX"
+
+  , testCase "key is always the alphabetically-first representation of a board" $ do
+      let strings = (\t -> Text.pack $ show $ applyTransform t basicBoard ) <$> [None, Rot1, Rot2, Rot2, Flip, FlipRot1, FlipRot2, FlipRot3]
+          best = head $ List.sort strings
+          (key, _) = getBoardKey basicBoard
+
+      key @?= best
 
   ]
 
