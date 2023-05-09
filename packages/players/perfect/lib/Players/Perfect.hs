@@ -13,7 +13,7 @@ import qualified Data.List.Split        as Split
 import qualified Data.Maybe             as Maybe
 import qualified Data.Text              as Text
 
-import           Control.Monad          (unless)
+import           Control.Monad
 import           Control.Monad.Except   (Except, runExcept)
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Either
@@ -58,6 +58,8 @@ bestPlay playerSign board = do
 
               let (remappedMoves :: Except Text [Position]) = fmap (identifyPosSource transform) <$> goodMoves
               let (positions :: [Position]) = fromRight [] $ runExcept remappedMoves
+
+              when (null positions) $ liftIO $ print $ "no moves for: " <> show boardKey
 
               let disallowed = List.filter (`notElem` allowed) positions
               unless (null disallowed) $ liftIO $ do
@@ -299,7 +301,6 @@ selectPositions " OXXX OXO" = pure [B3]
 selectPositions " OXXXO XO" = pure [C1]
 selectPositions " OXXXOO X" = pure [A1]
 selectPositions " OXXXOOX " = pure [A1, C3]
-selectPositions " X  OXXOO" = pure [A1]
 selectPositions " X XOX O " = pure [A1, A3, C1, C3]
 selectPositions " XOX  OOX" = pure [B2]
 selectPositions " XOXO XOX" = pure [A1]

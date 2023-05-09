@@ -18,6 +18,14 @@ module Board
   , nextSign
   , positionToText
   , renderBoard
+
+  -- for tests
+  , Transform (..)
+  , applyTransform
+  , revertTransform
+  , createBoard
+  , Board (..)
+  , readBoard
   ) where
 
 import qualified Data.List    as List
@@ -184,33 +192,25 @@ isEmpty _     = False
 
 
 findWinner :: Board -> Maybe Sign
-findWinner (Board xs)
-  | isNotEmpty a1Value && a1Value == a2Value && a1Value == a3Value = Just a1Value
-  | isNotEmpty a1Value && a1Value == b1Value && a1Value == c1Value = Just a1Value
-  | isNotEmpty a1Value && a1Value == b2Value && a1Value == c3Value = Just a1Value
+findWinner (Board [a1, a2, a3, b1, b2, b3, c1, c2, c3])
+  | isNotEmpty a1 && a1 == a2 && a1 == a3 = Just a1
+  | isNotEmpty a1 && a1 == b1 && a1 == c1 = Just a1
 
-  | isNotEmpty a2Value && a2Value == b2Value && a2Value == c2Value = Just a2Value
-  | isNotEmpty b1Value && b1Value == b2Value && b1Value == b3Value = Just b1Value
+  | isNotEmpty b2 && b2 == b1 && b2 == b3 = Just b2
+  | isNotEmpty b2 && b2 == a2 && b2 == c2 = Just b2
 
-  | isNotEmpty a3Value && a3Value == b2Value && a3Value == c1Value = Just a3Value
-  | isNotEmpty a3Value && a3Value == b3Value && a3Value == c3Value = Just a3Value
+  | isNotEmpty b2 && b2 == a1 && b2 == c3 = Just b2
+  | isNotEmpty b2 && b2 == a3 && b2 == c1 = Just b2
 
-  | isNotEmpty c1Value && c1Value == c2Value && c1Value == c3Value = Just c1Value
+  | isNotEmpty c3 && c3 == b3 && c3 == a3 = Just c3
+  | isNotEmpty c3 && c3 == c1 && c3 == c2 = Just c3
 
   | otherwise = Nothing
 
   where
-    isNotEmpty = not . isEmpty
+    isNotEmpty = (/=) Empty
 
-    a1Value = head xs
-    a2Value = xs !! 1
-    a3Value = xs !! 2
-    b1Value = xs !! 3
-    b2Value = xs !! 4
-    b3Value = xs !! 5
-    c1Value = xs !! 6
-    c2Value = xs !! 7
-    c3Value = xs !! 8
+findWinner (Board _) = Nothing
 
 
 getValidMoves :: Board -> [Position]
@@ -302,6 +302,6 @@ revertTransform FlipRot3 = mapBoard (flipPos . rotatePos )
 getBoardKey :: Board -> (BoardKey, Transform)
 getBoardKey board = head $ List.sortOn fst $ List.sortOn snd (permutations board)
   where
-    permutations :: Board -> [] ( BoardKey, Transform )
+    permutations :: Board -> [( BoardKey, Transform )]
     permutations b = (\x -> (boardToText (applyTransform x b), x)) <$>
       [ None, Rot1 , Rot2 , Rot3 , Flip , FlipRot1 , FlipRot2 , FlipRot3 ]

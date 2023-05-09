@@ -10,6 +10,7 @@ import qualified Data.Maybe                 as Maybe
 import           Board
 import           Control.Monad.Random.Class (MonadRandom)
 import           Data.Functor               ((<&>))
+import Data.Ord
 import           System.Random.Shuffle      (shuffleM)
 
 
@@ -25,7 +26,7 @@ optimiseFor sign board = do
     assessOptions = do
       shuffleM (assess sign board) <&> (fmap fst . List.sortBy sortOrder)
 
-    sortOrder :: (Position, Score) -> (Position, Score) -> Ordering
+    sortOrder :: (a, Score) -> (a, Score) -> Ordering
     sortOrder (_, a) (_, b) = if sign == X then compare b a else compare a b
 
 

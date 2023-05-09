@@ -4,11 +4,11 @@
 
 module Tests.Learner.Weights (weightTests) where
 
-import qualified Data.Map                as Map
+import qualified Data.Map                   as Map
 
 import           Board
-import           Control.Monad.State     (execStateT, runStateT)
-import           Data.Map                ((!))
+import           Control.Monad.State.Strict (execStateT, runStateT)
+import           Data.Map                   ((!))
 import           Players.Learner.Actions
 import           Players.Learner.Weights
 import           Test.Tasty

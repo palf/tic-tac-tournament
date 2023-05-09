@@ -86,13 +86,7 @@ counts = foldr' (Map.alter f) Map.empty
 
 
 updateStats :: (MonadState Stats m) => GameResult -> m ()
-updateStats gameResult = do
-  stats <- State.get
-
-  let newStats = Map.alter (\m -> Just $ 1 + Maybe.fromMaybe 0 m) gameResult stats
-
-  State.put newStats
-
+updateStats = State.modify . Map.alter (Just . (+) 1 . Maybe.fromMaybe 0)
 
 
 run :: (MonadIO m, MonadState Stats m) => App m GameResult -> Weights -> m Weights

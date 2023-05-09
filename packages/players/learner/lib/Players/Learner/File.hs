@@ -1,10 +1,7 @@
-{-# LANGUAGE ConstraintKinds     #-}
-{-# LANGUAGE DerivingVia         #-}
-{-# LANGUAGE FlexibleContexts    #-}
-{-# LANGUAGE FlexibleInstances   #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-
-module Players.Learner.File where
+module Players.Learner.File
+  ( readWeightsFromFile
+  , writeWeightsToFile
+  ) where
 
 import qualified Data.Aeson               as Aeson
 import qualified Data.Aeson.Encode.Pretty as Pretty

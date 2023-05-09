@@ -11,12 +11,12 @@ module Play
   ) where
 
 import qualified Control.Monad.State as State
-import qualified Data.Foldable               as Foldable
-import qualified Data.Sequence               as Seq
+import qualified Data.Foldable       as Foldable
+import qualified Data.Sequence       as Seq
 
 import           Control.Monad.State (MonadState)
-import           Data.Map.Strict             (Map, (!?))
-import           Data.Sequence               (Seq)
+import           Data.Map.Strict     (Map, (!?))
+import           Data.Sequence       (Seq)
 
 import           Board
 
