@@ -18,7 +18,7 @@ import           Test.Tasty.HUnit
 
 
 weightTests :: TestTree
-weightTests = testGroup "weights" [ getWeightTests, modifyWeightTests, jsonTests ]
+weightTests = testGroup "weights" [ getWeightTests, modifyWeightTests, jsonTests, towardTests ]
 
 
 getWeightTests :: TestTree
@@ -224,3 +224,14 @@ jsonTests = testGroup "json"
   where
     weights :: Weights
     weights = Map.fromList [ ( BoardKey "  O|OXX|XOX", Map.fromList [ (A1, 1.0) , (A2, 0.0) ]) ]
+
+
+
+towardTests :: TestTree
+towardTests = testGroup "towards"
+  [ testCase "moves halfway toward the target" $ toward target 0.5 @?= 0.75
+  , testCase "does not pass the target" $ toward target target @?= target
+  ]
+
+ where
+   target = 1 :: Float
