@@ -1,10 +1,10 @@
 # Tic Tac Tournament
 
-This project allows you to develop and execute agents to play tic-tac-toe (noughts & crosses)
+This project allows you to develop and execute agents to play tic-tac-toe (noughts & crosses).
 
 You can specify which agents to use, and how many games to play. Results will be printed to `stdout`.
 
-This is a test-bed to try out improvements to the reinforcement learning algorithm
+This is a test-bed to try out improvements to the reinforcement learning algorithm.
 
 ## Usage
 
@@ -24,20 +24,21 @@ To get a list of all supported options, use:
 $ stack exec versus -- --help
 ```
 
-We're using `optparse-applicative` to handle command-line arguments
+We're using `optparse-applicative` to handle command-line arguments.
 
-For a more complete xample, try:
+For a more complete example, try:
 
 ```sh
 $ stack exec versus -- -X perfect -O learner02 -t 10000
 ```
 
-This should take less than one minute
+This should take less than one minute.
 
 ### Train
 
-This command will train the learner model and create a `weights.json` file
-This file is not used by the `versus` executable; it's for debugging
+This command will train the learner model and create a `weights.json` file.
+
+This file is not used by the `versus` executable; it's for debugging.
 
 ```sh
 $ stack exec train -- --help
