@@ -3,7 +3,7 @@ module Tests.MakeMove (makeMoveTests) where
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-import           Board
+import           TicTacTournament
 
 
 makeMoveTests :: TestTree

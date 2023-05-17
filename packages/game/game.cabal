@@ -11,11 +11,12 @@ build-type:     Simple
 
 library
   exposed-modules:
-      Board
-      Game.Position
-      Game.Sign
-      Play
+      TicTacTournament
   other-modules:
+      TicTacTournament.Board
+      TicTacTournament.Play
+      TicTacTournament.Position
+      TicTacTournament.Sign
       Paths_game
   hs-source-dirs:
       lib
@@ -54,8 +55,8 @@ test-suite game
   other-modules:
       Tests.Board
       Tests.FindWinner
-      Tests.Game.Position
       Tests.MakeMove
+      Tests.Position
       Utils
       Paths_game
   hs-source-dirs:

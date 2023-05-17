@@ -3,19 +3,15 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedStrings          #-}
 
-module Board
+module TicTacTournament.Board
   ( Board
   , BoardKey (..)
   , Move
-  , Position (..)
-  , Sign (..)
   , boardIsFull
   , emptyBoard
   , findWinner
   , getBoardKey
   , getValidMoves
-  , identifyPosSource
-  , identifyPosTarget
   , makeMove
   , nextSign
   , positionToText
@@ -23,22 +19,22 @@ module Board
     -- for tests
   , Transform (..)
   , applyTransform
-  , boardToText
   , boardToByteString
+  , boardToText
   , createBoard
   , readBoard
   , revertTransform
   ) where
 
-import qualified Data.Aeson      as Aeson
-import qualified Data.List       as List
-import qualified Data.List.Index as Index
+import qualified Data.Aeson                as Aeson
+import qualified Data.List                 as List
+import qualified Data.List.Index           as Index
 
-import           Data.ByteString (ByteString)
-import           Data.Text       (Text)
-import           Game.Position
-import           Game.Sign
+import           Data.ByteString           (ByteString)
+import           Data.Text                 (Text)
 import           GHC.Generics
+import           TicTacTournament.Position
+import           TicTacTournament.Sign
 
 
 
@@ -50,16 +46,16 @@ newtype Board
   deriving (Eq, Generic)
 
 
-unboard :: Board -> [Sign]
-unboard (Board xs) = xs
+boardToString :: Board -> String
+boardToString (Board xs) = concatMap signToString xs
 
 
 instance Show Board where
   show = boardToString
 
 
-boardToString :: Board -> String
-boardToString (Board xs) = concatMap signToString xs
+unboard :: Board -> [Sign]
+unboard (Board xs) = xs
 
 
 boardToByteString :: Board -> ByteString

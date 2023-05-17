@@ -1,13 +1,7 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Game.Sign
-  ( Sign (..)
-  , nextSign
-  , signToByteString
-  , signToString
-  , signToText
-  ) where
+module TicTacTournament.Sign where
 
 import           Data.ByteString (ByteString)
 import           Data.Text       (Text)

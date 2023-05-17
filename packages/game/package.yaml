@@ -9,6 +9,8 @@ dependencies:
 
 library:
   source-dirs: lib
+  exposed-modules:
+    - TicTacTournament
   dependencies:
     - aeson
     - bytestring

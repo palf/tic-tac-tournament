@@ -5,13 +5,11 @@
 
 module Tests.Board (boardTests) where
 
-import qualified Data.List as List
-
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import           Test.Tasty.QuickCheck
 
-import           Board
+import           TicTacTournament
 
 
 instance Arbitrary Transform where
@@ -96,7 +94,7 @@ boardKeyTests = testGroup "board key"
 
   , testCase "key is always the alphabetically-first representation of a board" $ do
       let strings = (\t -> BoardKey $ boardToText $ applyTransform t basicBoard ) <$> [None, Rot1, Rot2, Rot2, Flip, FlipRot1, FlipRot2, FlipRot3]
-          best = head $ List.sort strings
+          best = minimum strings
           (key, _) = getBoardKey basicBoard
 
       key @?= best

@@ -1,7 +1,7 @@
 module Utils where
 
-import           Board
 import           Data.Foldable
+import           TicTacTournament
 
 setBoard :: [(Position, Sign)] -> Board
 setBoard = foldl' setPosition emptyBoard

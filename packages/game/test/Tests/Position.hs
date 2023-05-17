@@ -3,16 +3,16 @@
 {-# LANGUAGE OverloadedStrings   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Tests.Game.Position (positionTests) where
+module Tests.Position (positionTests) where
 
-import qualified Data.Aeson            as Aeson
-import qualified Data.Map              as Map
+import qualified Data.Aeson             as Aeson
+import qualified Data.Map               as Map
 
 import           Test.Tasty
 import           Test.Tasty.HUnit
 import           Test.Tasty.QuickCheck
 
-import           Board
+import           TicTacTournament
 
 
 instance Arbitrary Transform where

@@ -4,16 +4,16 @@
 
 module Tests.Learner.Weights (weightTests) where
 
+import qualified Data.Aeson                 as Aeson
 import qualified Data.Map                   as Map
-import qualified Data.Aeson as Aeson
 
-import           Board
 import           Control.Monad.State.Strict (execStateT, runStateT)
 import           Data.Map                   ((!))
 import           Players.Learner.Actions
 import           Players.Learner.Weights
 import           Test.Tasty
 import           Test.Tasty.HUnit
+import           TicTacTournament
 
 
 

@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleContexts    #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Play
+module TicTacTournament.Play
   ( GameHistory
   , GameResult (..)
   , Player (..)
@@ -10,15 +10,17 @@ module Play
   , printGame
   ) where
 
-import qualified Control.Monad.State as State
-import qualified Data.Foldable       as Foldable
-import qualified Data.Sequence       as Seq
+import qualified Control.Monad.State       as State
+import qualified Data.Foldable             as Foldable
+import qualified Data.Sequence             as Seq
 
-import           Control.Monad.State (MonadState)
-import           Data.Map.Strict     (Map, (!?))
-import           Data.Sequence       (Seq)
+import           Control.Monad.State       (MonadState)
+import           Data.Map.Strict           (Map, (!?))
+import           Data.Sequence             (Seq)
 
-import           Board
+import           TicTacTournament.Board
+import           TicTacTournament.Position
+import           TicTacTournament.Sign
 
 
 type GameHistory = Seq Board

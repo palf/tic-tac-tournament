@@ -20,8 +20,8 @@ import qualified Data.Maybe                 as Maybe
 import           Control.Monad.State.Strict (StateT)
 import           Data.Map                   (Map)
 
-import           Board
 import           Players.Learner.Choices
+import           TicTacTournament
 
 
 type Score = Float

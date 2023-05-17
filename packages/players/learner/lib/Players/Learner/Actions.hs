@@ -4,7 +4,7 @@ import qualified Control.Monad.Random   as Random
 
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 
-import           Board
+import           TicTacTournament
 
 
 data Action = Exploit | Explore deriving (Eq, Show)
@@ -17,7 +17,7 @@ randomElementIO xs = do
   pure $ Just (xs !! idx)
 
 
-pickAny :: (MonadIO m) => Board -> m Move
+pickAny :: (MonadIO m) => Board -> m (Maybe Position)
 pickAny = liftIO . randomElementIO . getValidMoves
 
 

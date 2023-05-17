@@ -29,10 +29,10 @@ import           Control.Monad.Writer.Strict (WriterT)
 import           GHC.Generics
 import           Safe                        (headMay, lastMay)
 
-import           Board
 import           Players.Learner.Actions
 import           Players.Learner.Choices
 import           Players.Learner.Weights
+import           TicTacTournament
 
 
 newtype Weights'
@@ -66,7 +66,7 @@ instance (Monad m) => HasWeights' (StateT Weights' m) where
   writew = State.put
 
 
-selectMove :: (MonadIO m, HasWeights' m, RecordsChoice' m) => Sign -> Board -> m Move
+selectMove :: (MonadIO m, HasWeights' m, RecordsChoice' m) => Sign -> Board -> m (Maybe Position)
 selectMove sign board = do
   action <- pickAction 0.9
 

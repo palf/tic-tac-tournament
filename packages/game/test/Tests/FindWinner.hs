@@ -3,7 +3,7 @@ module Tests.FindWinner (findWinnerTests) where
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-import           Board
+import           TicTacTournament
 import           Utils
 
 

@@ -3,23 +3,23 @@ module Tests.Players.Minimax (playerMinimaxTests) where
 import           Test.Tasty
 import           Test.Tasty.HUnit
 
-import           Board
 import           Players.Minimax
+import           TicTacTournament
 
 
 playerMinimaxTests :: TestTree
 playerMinimaxTests = testGroup "minimax"
   [ testCase "win is greater than loss" $ do
       WinForX > WinForO @? "win beats loss"
-      WinForX > Draw @? "win beats draw"
-      Draw > WinForO @? "draw beats loss"
+      WinForX > MutualLoss @? "win beats draw"
+      MutualLoss > WinForO @? "draw beats loss"
 
   , testCase "assess 06" $ do
       -- X O X
       -- O _ _
       -- O X _
       let board = createBoard [ X, O, X, O, Empty, Empty, O, X, Empty ]
-      assess X board @?= [(B2, Draw), (B3, Draw), (C3, WinForX)]
+      assess X board @?= [(B2, MutualLoss), (B3, MutualLoss), (C3, WinForX)]
 
   , testCase "assess 07" $ do
       -- X X O
@@ -62,7 +62,7 @@ playerMinimaxTests = testGroup "minimax"
       -- O O X
       -- _ _ _
       let board = createBoard [ X, O, X, O, O, X, Empty, Empty, Empty ]
-      assess X board @?= [ (C1, WinForO), (C2, Draw), (C3, WinForX) ]
+      assess X board @?= [ (C1, WinForO), (C2, MutualLoss), (C3, WinForX) ]
 
       mpos <- optimiseFor X board
       mpos @?= Just C3
@@ -103,11 +103,11 @@ playerMinimaxTests = testGroup "minimax"
       assess X board @?=
         [ (A2, WinForO)
         , (A3, WinForX)
-        , (B1, Draw)
+        , (B1, MutualLoss)
         , (B2, WinForX)
         , (C1, WinForX)
-        , (C2, Draw)
-        , (C3, Draw)
+        , (C2, MutualLoss)
+        , (C3, MutualLoss)
         ]
 
   , testCase "assess 15" $ do

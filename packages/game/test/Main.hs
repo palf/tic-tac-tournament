@@ -4,8 +4,8 @@ import           Test.Tasty
 
 import           Tests.Board
 import           Tests.FindWinner
-import           Tests.Game.Position
 import           Tests.MakeMove
+import           Tests.Position
 
 
 main :: IO ()

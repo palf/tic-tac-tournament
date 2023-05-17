@@ -18,9 +18,8 @@ import           Control.Monad.State.Strict (MonadState, StateT, evalStateT,
 import           Control.Monad.Trans.Class  (lift)
 import           System.ProgressBar
 
-import           Board
 import           Options
-import           Play
+import           TicTacTournament
 
 
 type Weights = Learner02.Weights'

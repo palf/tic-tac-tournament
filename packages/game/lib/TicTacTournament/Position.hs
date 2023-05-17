@@ -1,11 +1,11 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module Game.Position where
+module TicTacTournament.Position where
 
-import qualified Data.Aeson          as Aeson
+import qualified Data.Aeson   as Aeson
 
-import           Data.Text           (Text)
+import           Data.Text    (Text)
 import           GHC.Generics
 
 

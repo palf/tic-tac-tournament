@@ -13,8 +13,7 @@ import           Control.Monad
 import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Text              (Text)
 
-import           Board
-import           Play
+import           TicTacTournament
 
 
 randomElementIO :: [a] -> IO (Maybe a)
@@ -24,11 +23,11 @@ randomElementIO xs = do
   pure $ Just (xs !! idx)
 
 
-pickAny :: (MonadIO m) => Board -> m Move
+pickAny :: (MonadIO m) => Board -> m (Maybe Position)
 pickAny = liftIO . randomElementIO . getValidMoves
 
 
-bestPlay :: (MonadIO m) => Sign -> Board -> m Move
+bestPlay :: (MonadIO m) => Sign -> Board -> m (Maybe Position)
 bestPlay playerSign board = do
   let (allowed :: [Position])= getValidMoves board
 
@@ -50,20 +49,12 @@ bestPlay playerSign board = do
               let (BoardKey boardKey, transform) = getBoardKey board
               let goodMoves = selectPositions boardKey
 
-              let (positions :: [Position]) = (identifyPosSource transform) <$> goodMoves
+              let (positions :: [Position]) = identifyPosSource transform <$> goodMoves
 
               when (null positions) $ liftIO $ print $ "no moves for: " <> show boardKey
 
               let disallowed = List.filter (`notElem` allowed) positions
-              unless (null disallowed) $ liftIO $ do
-                print ("allowed"    :: String, allowed)
-                print ("disallowed" :: String, disallowed)
-                print ("boardKey"   :: String, boardKey)
-                print ("transform"  :: String, transform)
-                print ("good moves" :: String, goodMoves)
-                print ("positions"  :: String, positions)
-                printGame $ pure board
-                error "move disallowed"
+              unless (null disallowed) $ error "move disallowed"
 
               liftIO $ randomElementIO positions
 
@@ -317,4 +308,4 @@ selectPositions "OOX|X  |OXX" = [B3]
 selectPositions "OOX|X O|X X" = [B2, C2]
 selectPositions "OOX|XO |X X" = [C2]
 
-selectPositions _ = []
+selectPositions _             = []

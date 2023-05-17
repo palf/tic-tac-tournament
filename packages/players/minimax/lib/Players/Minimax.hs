@@ -7,13 +7,13 @@ module Players.Minimax
 import qualified Data.List                  as List
 import qualified Data.Maybe                 as Maybe
 
-import           Board
 import           Control.Monad.Random.Class (MonadRandom)
 import           Data.Functor               ((<&>))
 import           System.Random.Shuffle      (shuffleM)
+import           TicTacTournament
 
 
-data Score = WinForO | Draw | WinForX deriving (Enum, Eq, Ord, Show)
+data Score = WinForO | MutualLoss | WinForX deriving (Enum, Eq, Ord, Show)
 
 
 optimiseFor :: (MonadRandom m) => Sign -> Board -> m (Maybe Position)
@@ -43,7 +43,7 @@ getScoreForBoard sign b
     = if winner == X then WinForX else WinForO
 
   | List.null candidates
-    = Draw
+    = MutualLoss
 
   | otherwise
     = (if sign == X then maximum else minimum)

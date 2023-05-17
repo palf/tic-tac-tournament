@@ -2,8 +2,8 @@ module Players.Random (pickAny) where
 
 import qualified System.Random          as Random
 
-import           Board
 import           Control.Monad.IO.Class (MonadIO, liftIO)
+import           TicTacTournament
 
 
 randomElementIO :: [a] -> IO (Maybe a)

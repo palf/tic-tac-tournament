@@ -22,9 +22,8 @@ import           Control.Monad.Trans.Class  (lift)
 import           Data.Map.Strict            (Map)
 import           System.ProgressBar
 
-import           Board
 import           Options
-import           Play
+import           TicTacTournament
 
 
 type Weights = (Learner01.Weights', Learner02.Weights')
