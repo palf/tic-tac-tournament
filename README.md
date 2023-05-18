@@ -17,22 +17,19 @@ This will use the default options, random vs random once.
 
 To get a list of all supported options, use:
 
-
-### Versus
-
 ```sh
 $ stack exec versus -- --help
 ```
+
+### Versus
 
 We're using `optparse-applicative` to handle command-line arguments.
 
 For a more complete example, try:
 
 ```sh
-$ stack exec versus -- -X perfect -O learner02 -t 10000
+$ stack exec versus -- -X perfect -O learner02 -t 1000
 ```
-
-This should take less than one minute.
 
 ### Train
 
@@ -45,3 +42,13 @@ $ stack exec train -- --help
 
 $ stack exec train -- -t 10000
 ```
+
+
+## Agents
+
+Agents currently implemented are:
+
+- Random: picks a random valid move
+- Minimax: us
+
+

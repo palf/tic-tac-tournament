@@ -14,10 +14,20 @@ import           Options.Applicative ((<**>))
 
 
 data AgentName = Learner01 | Learner02 | Random | Minimax | Perfect deriving
-  ( Eq
+  ( Bounded
+  , Enum
+  , Eq
   , Generic
-  , Show
   )
+
+
+instance Show AgentName where
+  show Learner01 = "learner01"
+  show Learner02 = "learner02"
+  show Minimax   = "minimax"
+  show Perfect   = "perfect"
+  show Random    = "random"
+
 
 instance IsString AgentName where
   fromString "random"    = Random
@@ -25,7 +35,9 @@ instance IsString AgentName where
   fromString "learner02" = Learner02
   fromString "perfect"   = Perfect
   fromString "minimax"   = Minimax
-  fromString s           = error ("bad agent name: " <> s)
+  fromString s           = error $ "bad agent name (" <> s <> ")\ntry one of: " <> show allAgentNames
+    where
+      allAgentNames = [minBound..maxBound] :: [AgentName]
 
 
 data Options
