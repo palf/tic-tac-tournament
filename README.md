@@ -48,7 +48,8 @@ $ stack exec train -- -t 10000
 
 Agents currently implemented are:
 
-- Random: picks a random valid move
-- Minimax: us
-
-
+- "random": picks a random valid move
+- "minimax": uses the minimax algorithm to find a perfect play. Is a bit slow
+- "perfect": uses a handcrafted table to make the perfect play. Should never lose; if it does, that's a bug
+- "learner01": uses a reinforcement approach, moves all weights to either 0, 0.5 or 1
+- "learner02": uses a reinforcement approach, moves all weights closer to the value of subsequent states
