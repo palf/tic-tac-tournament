@@ -54,10 +54,6 @@ instance Show Board where
   show = boardToString
 
 
-unboard :: Board -> [Sign]
-unboard (Board xs) = xs
-
-
 boardToByteString :: Board -> ByteString
 boardToByteString (Board xs)
     = row1 <> "|" <> row2 <> "|" <> row3
@@ -94,7 +90,7 @@ renderBoard board = unlines $ showRow . fmap (readBoard board) <$> ps
 
 
 readBoard :: Board -> Position -> Sign
-readBoard board pos = unboard board !! indexOf pos
+readBoard (Board xs) pos = xs !! indexOf pos
 
 
 writeBoard :: Board -> Sign -> Position -> Board
@@ -147,7 +143,7 @@ makeMove :: Board -> Sign -> Position -> Board
 makeMove board sign pos =
   if board `readBoard` pos == Empty
      then writeBoard board sign pos
-     else error "bad make move"
+     else error "attempted to set non-empty position"
 
 
 applyTransform :: Transform -> Board -> Board

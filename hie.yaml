@@ -1,0 +1,43 @@
+cradle:
+  stack:
+    - path: "packages/game/lib"
+      component: "game:lib"
+
+    - path: "packages/game/test"
+      component: "game:test:game"
+
+    - path: "packages/players/learner/lib"
+      component: "players-learner:lib"
+
+    - path: "packages/players/learner/bin/Main.hs"
+      component: "players-learner:exe:train"
+
+    - path: "packages/players/learner/bin/Options.hs"
+      component: "players-learner:exe:train"
+
+    - path: "packages/players/learner/bin/Paths_players_learner.hs"
+      component: "players-learner:exe:train"
+
+    - path: "packages/players/learner/test"
+      component: "players-learner:test:learner"
+
+    - path: "packages/players/minimax/lib"
+      component: "players-minimax:lib"
+
+    - path: "packages/players/minimax/test"
+      component: "players-minimax:test:minimax"
+
+    - path: "packages/players/perfect/lib"
+      component: "players-perfect:lib"
+
+    - path: "packages/players/random/lib"
+      component: "players-random:lib"
+
+    - path: "packages/versus/bin/Main.hs"
+      component: "versus:exe:versus"
+
+    - path: "packages/versus/bin/Options.hs"
+      component: "versus:exe:versus"
+
+    - path: "packages/versus/bin/Paths_versus.hs"
+      component: "versus:exe:versus"

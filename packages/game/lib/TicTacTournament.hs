@@ -23,16 +23,13 @@ module TicTacTournament
   , applyTransform
   , boardToText
   , createBoard
-  , readBoard
   , emptyBoard
+  , readBoard
   , revertTransform
   ) where
 
 
 import           TicTacTournament.Board
-
 import           TicTacTournament.Play
-
 import           TicTacTournament.Position
-
 import           TicTacTournament.Sign

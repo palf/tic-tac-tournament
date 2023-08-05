@@ -14,8 +14,7 @@ import           TicTacTournament
 
 instance Arbitrary Transform where
   arbitrary = arbitraryBoundedEnum
-  shrink None = []
-  shrink _    = [None]
+  shrink = genericShrink
 
 
 instance Arbitrary Sign where
@@ -27,7 +26,6 @@ instance Arbitrary Position where
 
 
 instance Arbitrary Board where
-  shrink = genericShrink
   arbitrary = createBoard <$> vectorOf 9 arbitrary
 
 
